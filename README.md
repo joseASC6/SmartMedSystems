@@ -1,11 +1,5 @@
 # SmartMedSystems
  
-Run in Locally in VS Code:
- 
-1. Download Node.js
-
-2. Open the integrated terminal in VS Code
-
-3. npm install
-
-4. npm run dev
+Run npm install to install all dependencies
+Start the development server with npm run dev.
+The website will open at http://localhost:5173/
