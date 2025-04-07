@@ -7,12 +7,17 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
 
+  const handleNavigate = (page: string) => {
+    setCurrentPage(page);
+    setIsMenuOpen(false); // Close mobile menu when navigating
+  };
+
   const renderPage = () => {
     switch (currentPage) {
       case 'login':
-        return <Login />;
+        return <Login onNavigate={handleNavigate} />;
       case 'signup':
-        return <Signup />;
+        return <Signup onNavigate={handleNavigate} />;
       default:
         return (
           <>
@@ -32,7 +37,7 @@ function App() {
                       <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                         <div className="rounded-md shadow">
                           <button
-                            onClick={() => setCurrentPage('signup')}
+                            onClick={() => handleNavigate('signup')}
                             className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
                           >
                             Get Started
@@ -40,7 +45,7 @@ function App() {
                         </div>
                         <div className="mt-3 sm:mt-0 sm:ml-3">
                           <button
-                            onClick={() => setCurrentPage('login')}
+                            onClick={() => handleNavigate('login')}
                             className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10"
                           >
                             Sign In
@@ -107,12 +112,12 @@ function App() {
               <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
                 <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
                   <span className="block">Ready to get started?</span>
-                  <span className="block text-blue-200">Download our app today.</span>
+                  <span className="block text-blue-200">Sign up today!</span>
                 </h2>
                 <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
                   <div className="inline-flex rounded-md shadow">
                     <button
-                      onClick={() => setCurrentPage('signup')}
+                      onClick={() => handleNavigate('signup')}
                       className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50"
                     >
                       Get Started
@@ -139,17 +144,17 @@ function App() {
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
-              <button onClick={() => setCurrentPage('home')} className="text-gray-700 hover:text-blue-600">Home</button>
-              <a href="/about" className="text-gray-700 hover:text-blue-600">About Us</a>
-              <a href="/how-it-works" className="text-gray-700 hover:text-blue-600">How It Works</a>
+              <button onClick={() => handleNavigate('home')} className="text-gray-700 hover:text-blue-600">Home</button>
+              <button onClick={() => handleNavigate('about')} className="text-gray-700 hover:text-blue-600">About Us</button>
+              <button onClick={() => handleNavigate('how-it-works')} className="text-gray-700 hover:text-blue-600">How It Works</button>
               <button
-                onClick={() => setCurrentPage('login')}
+                onClick={() => handleNavigate('login')}
                 className="bg-gray-100 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-200"
               >
                 Log In
               </button>
               <button
-                onClick={() => setCurrentPage('signup')}
+                onClick={() => handleNavigate('signup')}
                 className="bg-blue-600 px-4 py-2 rounded-lg text-white hover:bg-blue-700"
               >
                 Sign Up
@@ -168,17 +173,17 @@ function App() {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              <button onClick={() => setCurrentPage('home')} className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Home</button>
-              <a href="/about" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">About Us</a>
-              <a href="/how-it-works" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">How It Works</a>
+              <button onClick={() => handleNavigate('home')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Home</button>
+              <button onClick={() => handleNavigate('about')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">About Us</button>
+              <button onClick={() => handleNavigate('how-it-works')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">How It Works</button>
               <button
-                onClick={() => setCurrentPage('login')}
+                onClick={() => handleNavigate('login')}
                 className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
               >
-                Log In
+                Sign In
               </button>
               <button
-                onClick={() => setCurrentPage('signup')}
+                onClick={() => handleNavigate('signup')}
                 className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
               >
                 Sign Up

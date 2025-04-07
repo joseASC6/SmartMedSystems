@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Activity } from 'lucide-react';
 
-function Signup() {
+interface SignupProps {
+  onNavigate: (page: string) => void;
+}
+
+function Signup({ onNavigate }: SignupProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -106,9 +110,12 @@ function Signup() {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Already have an account?{' '}
-          <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+          <button
+            onClick={() => onNavigate('login')}
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
             Sign in
-          </a>
+          </button>
         </p>
       </div>
 

@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Activity } from 'lucide-react';
 
-function Login() {
+interface LoginProps {
+  onNavigate: (page: string) => void;
+}
+
+function Login({ onNavigate }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -60,9 +64,12 @@ function Login() {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
-          <a href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+          <button
+            onClick={() => onNavigate('signup')}
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
             create a new account
-          </a>
+          </button>
         </p>
       </div>
 
@@ -140,9 +147,13 @@ function Login() {
               </div>
 
               <div className="text-sm">
-                <a href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('forgot-password')}
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                >
                   Forgot your password?
-                </a>
+                </button>
               </div>
             </div>
 
