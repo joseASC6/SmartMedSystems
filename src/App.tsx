@@ -2,14 +2,24 @@ import React, { useState } from 'react';
 import { Menu, X, Heart, Activity, Users, Clock, ArrowRight } from 'lucide-react';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import RoleSelection from './pages/RoleSelection';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
+  const [userRole, setUserRole] = useState<'patient' | 'provider' | null>(null);
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page);
     setIsMenuOpen(false); // Close mobile menu when navigating
+  };
+
+  const handleRoleSelect = (role: 'patient' | 'provider') => {
+    setUserRole(role);
+  };
+
+  const handleSignupSuccess = () => {
+    handleNavigate('role-selection');
   };
 
   const renderPage = () => {
@@ -17,7 +27,13 @@ function App() {
       case 'login':
         return <Login onNavigate={handleNavigate} />;
       case 'signup':
-        return <Signup onNavigate={handleNavigate} />;
+        return <Signup onNavigate={handleNavigate} onSignupSuccess={handleSignupSuccess} />;
+      case 'role-selection':
+        return <RoleSelection onNavigate={handleNavigate} onRoleSelect={handleRoleSelect} />;
+      case 'patient-home':
+        return <div className="p-4">Patient Home (To be implemented)</div>;
+      case 'provider-dashboard':
+        return <div className="p-4">Provider Dashboard (To be implemented)</div>;
       default:
         return (
           <>
@@ -151,7 +167,7 @@ function App() {
                 onClick={() => handleNavigate('login')}
                 className="bg-gray-100 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-200"
               >
-                Log In
+                Sign In
               </button>
               <button
                 onClick={() => handleNavigate('signup')}

@@ -3,9 +3,10 @@ import { Eye, EyeOff, Activity } from 'lucide-react';
 
 interface SignupProps {
   onNavigate: (page: string) => void;
+  onSignupSuccess: () => void;
 }
 
-function Signup({ onNavigate }: SignupProps) {
+function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -79,6 +80,7 @@ function Signup({ onNavigate }: SignupProps) {
     if (validateForm()) {
       // Handle signup logic here
       console.log('Form submitted:', formData);
+      onSignupSuccess(); // Navigate to role selection after successful signup
     }
   };
 
