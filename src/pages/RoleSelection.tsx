@@ -1,5 +1,6 @@
 import React from 'react';
 import { UserCircle, Stethoscope } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface RoleSelectionProps {
   onNavigate: (page: string) => void;
@@ -7,9 +8,25 @@ interface RoleSelectionProps {
 }
 
 function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
+  const { login } = useAuth();
+
   const handleRoleSelect = (role: 'patient' | 'provider') => {
+    console.log('Selected role:', role);
+    
+    // Create a mock token for demonstration
+    const mockToken = 'mock-jwt-token';
+    
+    // Update auth context
+    login(mockToken, role);
+    
+    // Update parent component state
     onRoleSelect(role);
-    onNavigate(role === 'patient' ? 'patient-home' : 'provider-dashboard');
+    
+    // Navigate to appropriate dashboard
+    const targetPage = role === 'patient' ? 'patient-home' : 'provider-dashboard';
+    console.log('Navigating to:', targetPage);
+    
+    onNavigate(targetPage);
   };
 
   return (
@@ -27,7 +44,7 @@ function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <div className="space-y-6">
             <button
-              onClick={() => handleRoleSelect('patient') }
+              onClick={() => handleRoleSelect('patient')}
               className="w-full flex items-center justify-center px-8 py-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
             >
               <div className="text-center">

@@ -1,25 +1,26 @@
-import React, { useState } from 'react';
-import { Menu, X, Heart, Activity, Users, Clock, ArrowRight } from 'lucide-react';
+import React, { useState, Suspense } from 'react';
+import { Heart, Activity, Users, Clock, ArrowRight } from 'lucide-react';
+import { AuthProvider } from './contexts/AuthContext';
+import Navigation from './components/Navigation';
+import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import RoleSelection from './pages/RoleSelection';
 
+// Lazy load the dashboards for better performance
+const PatientHome = React.lazy(() => import('./pages/patient/Home.tsx'));
+const ProviderDashboard = React.lazy(() => import('./pages/provider/Dashboard.tsx'));
+
 function App() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
   const [userRole, setUserRole] = useState<'patient' | 'provider' | null>(null);
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page);
-    setIsMenuOpen(false); // Close mobile menu when navigating
   };
 
   const handleRoleSelect = (role: 'patient' | 'provider') => {
     setUserRole(role);
-  };
-
-  const handleSignupSuccess = () => {
-    handleNavigate('role-selection');
   };
 
   const renderPage = () => {
@@ -27,13 +28,25 @@ function App() {
       case 'login':
         return <Login onNavigate={handleNavigate} />;
       case 'signup':
-        return <Signup onNavigate={handleNavigate} onSignupSuccess={handleSignupSuccess} />;
+        return <Signup onNavigate={handleNavigate} onSignupSuccess={() => handleNavigate('role-selection')} />;
       case 'role-selection':
         return <RoleSelection onNavigate={handleNavigate} onRoleSelect={handleRoleSelect} />;
       case 'patient-home':
-        return <div className="p-4">Patient Home (To be implemented)</div>;
+        return (
+          <ProtectedRoute requiredRole="patient" onNavigate={handleNavigate}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <PatientHome />
+            </Suspense>
+          </ProtectedRoute>
+        );
       case 'provider-dashboard':
-        return <div className="p-4">Provider Dashboard (To be implemented)</div>;
+        return (
+          <ProtectedRoute requiredRole="provider" onNavigate={handleNavigate}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <ProviderDashboard />
+            </Suspense>
+          </ProtectedRoute>
+        );
       default:
         return (
           <>
@@ -64,7 +77,7 @@ function App() {
                             onClick={() => handleNavigate('login')}
                             className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10"
                           >
-                            Sign In
+                            Log In
                           </button>
                         </div>
                       </div>
@@ -149,68 +162,12 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Activity className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SmartMed Systems</span>
-            </div>
-            
-            <div className="hidden md:flex items-center space-x-8">
-              <button onClick={() => handleNavigate('home')} className="text-gray-700 hover:text-blue-600">Home</button>
-              <button onClick={() => handleNavigate('about')} className="text-gray-700 hover:text-blue-600">About Us</button>
-              <button onClick={() => handleNavigate('how-it-works')} className="text-gray-700 hover:text-blue-600">How It Works</button>
-              <button
-                onClick={() => handleNavigate('login')}
-                className="bg-gray-100 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-200"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => handleNavigate('signup')}
-                className="bg-blue-600 px-4 py-2 rounded-lg text-white hover:bg-blue-700"
-              >
-                Sign Up
-              </button>
-            </div>
-
-            <div className="md:hidden flex items-center">
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500">
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <button onClick={() => handleNavigate('home')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Home</button>
-              <button onClick={() => handleNavigate('about')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">About Us</button>
-              <button onClick={() => handleNavigate('how-it-works')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">How It Works</button>
-              <button
-                onClick={() => handleNavigate('login')}
-                className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => handleNavigate('signup')}
-                className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-              >
-                Sign Up
-              </button>
-            </div>
-          </div>
-        )}
-      </nav>
-
-      {renderPage()}
-    </div>
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation onNavigate={handleNavigate} />
+        {renderPage()}
+      </div>
+    </AuthProvider>
   );
 }
 
