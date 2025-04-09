@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<project name="smarmedsystems_logcial_db" id="LogicalDesign-228e" database="LogicalDesign" >
+<project name="smarmedsystems_logcial_db" database="LogicalDesign" id="LogicalDesign-228e" >
 	<schema name="INSTANCE" catalogname="smarmedsystems_logcial_db" >
 		<table name="appointment" prior="appointments" >
 			<column name="appointment_id" type="INT" jt="4" mandatory="y" />
@@ -213,21 +213,21 @@
 		</table>
 	</schema>
 	<layout name="Default Layout" id="Layout-a47" show_relation="columns" >
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="appointment" color="C1D8EE" x="480" y="800" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="business_user" color="C1D8EE" x="736" y="608" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="messages" color="C1D8EE" x="288" y="304" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="participant" color="C1D8EE" x="304" y="560" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="patient" color="C1D8EE" x="496" y="624" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="permissions" color="C1D8EE" x="736" y="160" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="role" color="C1D8EE" x="944" y="448" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="role_permissions" color="C1D8EE" x="976" y="272" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="schedule" color="C1D8EE" x="1024" y="752" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="threads" color="C1D8EE" x="112" y="384" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="time_slot" color="C1D8EE" x="768" y="816" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user" color="C1D8EE" x="512" y="416" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user_permissions" color="C1D8EE" x="512" y="224" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user_role" color="C1D8EE" x="736" y="448" />
-		<callout x="48" y="48" pointer="Round" >
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="appointment" color="C1D8EE" x="476" y="816" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="business_user" color="C1D8EE" x="731" y="612" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="messages" color="C1D8EE" x="306" y="289" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="participant" color="C1D8EE" x="306" y="595" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="patient" color="C1D8EE" x="493" y="629" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="permissions" color="C1D8EE" x="748" y="170" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="role" color="C1D8EE" x="952" y="459" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="role_permissions" color="C1D8EE" x="969" y="272" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="schedule" color="C1D8EE" x="969" y="748" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="threads" color="C1D8EE" x="153" y="442" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="time_slot" color="C1D8EE" x="731" y="816" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user" color="C1D8EE" x="510" y="408" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user_permissions" color="C1D8EE" x="510" y="221" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user_role" color="C1D8EE" x="731" y="442" />
+		<callout x="51" y="51" pointer="Round" >
 			<comment><![CDATA[This is a layout - a diagram with tools.
 - Create new entities by right-clicking the layout. 
 - Double-click entity headers to edit.
