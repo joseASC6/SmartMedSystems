@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="smarmedsystems_logcial_db" database="LogicalDesign" id="LogicalDesign-228e" >
+	<schema name="INSTANCE" catalogname="smarmedsystems_logcial_db" >
+		<table name="appointment" prior="appointments" >
+			<column name="appointment_id" type="INT" jt="4" mandatory="y" />
+			<index name="pk_appointments" unique="PRIMARY_KEY" >
+				<column name="appointment_id" />
+			</index>
+		</table>
+		<table name="employee" prior="Entity" >
+			<column name="employee_id" type="INT" jt="4" />
+		</table>
+		<table name="role" prior="Entity" >
+			<column name="role_id" type="INT" jt="4" mandatory="y" />
+			<index name="pk_role" unique="PRIMARY_KEY" >
+				<column name="role_id" />
+			</index>
+		</table>
+		<table name="schedule" prior="schedulle" >
+			<column name="schedule_id" type="INT" jt="4" mandatory="y" />
+			<index name="pk_schedule" unique="PRIMARY_KEY" >
+				<column name="schedule_id" />
+			</index>
+		</table>
+		<table name="threads" prior="Entity" >
+			<column name="thread_id" type="INT" jt="4" mandatory="y" />
+			<index name="pk_threads" unique="PRIMARY_KEY" >
+				<column name="thread_id" />
+			</index>
+		</table>
+		<table name="time_slot" prior="time" >
+			<column name="time_slot_id" type="INT" jt="4" mandatory="y" />
+			<index name="pk_time_slot" unique="PRIMARY_KEY" >
+				<column name="time_slot_id" />
+			</index>
+		</table>
+		<table name="user" prior="Entity" >
+			<column name="user_id" type="INT" jt="4" mandatory="y" />
+			<index name="pk_user" unique="PRIMARY_KEY" >
+				<column name="user_id" />
+			</index>
+		</table>
+		<table name="user_role" prior="Entity" >
+			<column name="role_id" type="INT" jt="4" />
+			<column name="user_id" type="INT" jt="4" />
+		</table>
+	</schema>
+	<layout name="Default Layout" id="Layout-a47" show_relation="columns" >
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="appointment" color="C1D8EE" x="102" y="731" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="employee" color="C1D8EE" x="51" y="476" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="role" color="C1D8EE" x="493" y="357" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="schedule" color="C1D8EE" x="340" y="731" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="threads" color="C1D8EE" x="136" y="306" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="time_slot" color="C1D8EE" x="221" y="833" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user" color="C1D8EE" x="289" y="578" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user_role" color="C1D8EE" x="425" y="476" />
+		<callout x="85" y="51" pointer="Round" >
+			<comment><![CDATA[This is a layout - a diagram with tools.
+- Create new entities by right-clicking the layout. 
+- Double-click entity headers to edit.
+- For a better understanding of the schema, create multiple layouts.
+- Deploy the model into the database by converting it first to the physical design.]]></comment>
+		</callout>
+	</layout>
+</project>
