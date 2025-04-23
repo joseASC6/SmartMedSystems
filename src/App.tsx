@@ -126,7 +126,7 @@ function App() {
                       </div>
                       <h3 className="mt-4 text-lg font-medium text-gray-900">Live Chat</h3>
                       <p className="mt-2 text-base text-gray-500 text-center">
-                        Ask common health-related questions via live chat so you can get quick answers
+                        Ask common health-related questions via live chat and get quick answers
                       </p>
                     </div>
 
@@ -140,7 +140,7 @@ function App() {
                       </div>
                       <h3 className="mt-4 text-lg font-medium text-gray-900">Video Call</h3>
                       <p className="mt-2 text-base text-gray-500 text-center">
-                      Join video calls with your provider so you can attend appointments remotely
+                      Join video calls with your provider and attend appointments remotely
                       </p>
                     </div>
                   </div>
