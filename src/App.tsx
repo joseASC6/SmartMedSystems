@@ -61,7 +61,7 @@ function App() {
                         <span className="block text-blue-600">Made Simple</span>
                       </h1>
                       <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                        Take control of your health with our comprehensive healthcare platform. Book appointments, track your health metrics, and connect with top healthcare professionals.
+                        Take control of your health with our comprehensive healthcare platform. Book appointments, have live chat and video with top healthcare professionals.
                       </p>
                       <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                         <div className="rounded-md shadow">
