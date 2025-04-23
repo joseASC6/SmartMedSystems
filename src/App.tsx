@@ -61,7 +61,7 @@ function App() {
                         <span className="block text-blue-600">Made Simple</span>
                       </h1>
                       <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                        Take control of your health with our comprehensive healthcare platform. Book appointments, track your health metrics, and connect with top healthcare professionals.
+                        Take control of your health with our comprehensive healthcare platform. Book appointments, have live chat and video with top healthcare professionals.
                       </p>
                       <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                         <div className="rounded-md shadow">
@@ -104,31 +104,43 @@ function App() {
                   <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
                     <div className="flex flex-col items-center">
                       <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                        <Heart className="h-6 w-6" />
+                        
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
+</svg>
+
                       </div>
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">Health Monitoring</h3>
+                      <h3 className="mt-4 text-lg font-medium text-gray-900">Appointment Scheduling</h3>
                       <p className="mt-2 text-base text-gray-500 text-center">
-                        Track your vital signs and health metrics in real-time with our advanced monitoring system.
+                        Effortlessly schedule your next online appointment with one of our trusted medical professionals and sign up for notifications
                       </p>
                     </div>
 
                     <div className="flex flex-col items-center">
                       <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                        <Users className="h-6 w-6" />
+                      
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+</svg>
+
                       </div>
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">Expert Doctors</h3>
+                      <h3 className="mt-4 text-lg font-medium text-gray-900">Live Chat</h3>
                       <p className="mt-2 text-base text-gray-500 text-center">
-                        Connect with qualified healthcare professionals for consultations and treatment.
+                        Ask common health-related questions via live chat and get quick answers
                       </p>
                     </div>
 
                     <div className="flex flex-col items-center">
                       <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                        <Clock className="h-6 w-6" />
+                        
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+</svg>
+
                       </div>
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">24/7 Support</h3>
+                      <h3 className="mt-4 text-lg font-medium text-gray-900">Video Call</h3>
                       <p className="mt-2 text-base text-gray-500 text-center">
-                        Access healthcare support and emergency services around the clock.
+                      Join video calls with your provider and attend appointments remotely
                       </p>
                     </div>
                   </div>
