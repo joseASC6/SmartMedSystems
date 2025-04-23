@@ -116,9 +116,9 @@ function App() {
                       <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
                         <Users className="h-6 w-6" />
                       </div>
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">Expert Doctors</h3>
+                      <h3 className="mt-4 text-lg font-medium text-gray-900">Virtual Nursing Assistant</h3>
                       <p className="mt-2 text-base text-gray-500 text-center">
-                        Connect with qualified healthcare professionals for consultations and treatment.
+                        Connect with qualified healthcare professionals for consultations and treatment.aa
                       </p>
                     </div>
 
