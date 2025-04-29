@@ -246,6 +246,7 @@
 			<column name="first_name" type="varchar" length="50" jt="12" mandatory="y" />
 			<column name="last_name" type="varchar" length="50" jt="12" mandatory="y" />
 			<column name="email" type="varchar" jt="12" mandatory="y" />
+			<column name="phone_number" type="text" jt="12" mandatory="y" />
 			<column name="password_hash" type="text" jt="12" mandatory="y" >
 				<comment><![CDATA[Securely hashed password]]></comment>
 			</column>
