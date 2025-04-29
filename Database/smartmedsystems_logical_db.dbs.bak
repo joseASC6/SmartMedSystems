@@ -4,8 +4,8 @@
 		<table name="appointment" prior="appointments" >
 			<column name="appointment_id" type="INT" jt="4" mandatory="y" />
 			<column name="patient_id" type="INT" jt="4" mandatory="y" />
-			<column name="employee_id" prior="provider_id" type="INT" jt="4" mandatory="y" />
-			<column name="time_slot_id" type="INT" jt="4" />
+			<column name="staff_id" prior="employee_id" type="INT" jt="4" mandatory="y" />
+			<column name="time_slot_id" type="INT" jt="4" mandatory="y" />
 			<column name="status" type="CHAR" length="15" jt="1" />
 			<index name="pk_appointments" unique="PRIMARY_KEY" >
 				<column name="appointment_id" />
@@ -17,43 +17,86 @@
 				<column name="patient_id" />
 			</index>
 			<index name="unq_employee_id" unique="UNIQUE_INDEX" >
-				<column name="employee_id" />
+				<column name="staff_id" />
+			</index>
+			<fk name="fk_appointment_patient" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="patient" type="NonIdentifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="patient_id" pk="patient_id" />
+			</fk>
+			<fk name="fk_appointment_staff" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="staff" type="NonIdentifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="staff_id" pk="staff_id" />
+			</fk>
+			<fk name="fk_appointment_time_slot" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="time_slot" type="NonIdentifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="time_slot_id" pk="time_slot_id" />
+			</fk>
+		</table>
+		<table name="audit_log" prior="Entity" >
+			<column name="log_id" type="INT" jt="4" mandatory="y" />
+			<column name="user_id" type="INT" jt="4" mandatory="y" />
+			<column name="action" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="timestamp" type="DATETIME" length="99999" jt="93" mandatory="y" />
+			<column name="details" type="VARCHAR" jt="12" />
+			<index name="pk_audit_log" unique="PRIMARY_KEY" >
+				<column name="log_id" />
 			</index>
 		</table>
-		<table name="business_user" prior="employee" >
-			<column name="employee_id" type="INT" jt="4" mandatory="y" />
-			<column name="user_id" type="INT" jt="4" />
-			<column name="business_id" type="INT" jt="4" />
-			<index name="pk_employee" unique="PRIMARY_KEY" >
-				<column name="employee_id" />
+		<table name="blackout_dates" prior="Entity" >
+			<column name="blackout_id" type="INT" jt="4" mandatory="y" />
+			<column name="staff_id" prior="provider_id" type="INT" jt="4" mandatory="y" />
+			<column name="start_date" type="DATE" jt="91" mandatory="y" />
+			<column name="end_date" type="DATE" jt="91" mandatory="y" />
+			<index name="pk_blackout_dates" unique="PRIMARY_KEY" >
+				<column name="blackout_id" />
 			</index>
-			<index name="unq_user_id" unique="UNIQUE_INDEX" >
-				<column name="user_id" />
+		</table>
+		<table name="department" prior="departmentdepartment_id" >
+			<column name="department_id" type="INT" jt="4" mandatory="y" />
+			<column name="name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="head_of_department" type="INT" jt="4" />
+			<index name="pk_department" unique="PRIMARY_KEY" >
+				<column name="department_id" />
 			</index>
-			<fk name="fk_business_user_appointment" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="appointment" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
-				<fk_column name="employee_id" pk="employee_id" />
-			</fk>
-			<fk name="fk_business_user_schedule" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="schedule" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
-				<fk_column name="employee_id" pk="employee_id" />
+			<index name="unq_head_of_department" unique="UNIQUE_INDEX" >
+				<column name="head_of_department" />
+			</index>
+			<fk name="fk_department_user" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user" type="NonIdentifying" mandatory="n" cardinality="ZeroOne" range_from="0" range_to="0" >
+				<fk_column name="head_of_department" pk="user_id" />
 			</fk>
 		</table>
 		<table name="messages" prior="Entity" >
 			<column name="message_id" type="INT" jt="4" mandatory="y" />
 			<column name="thread_id" type="INT" jt="4" mandatory="y" />
 			<column name="user_id" prior="sender_id" type="INT" jt="4" mandatory="y" />
-			<column name="content" type="INT" jt="4" />
-			<column name="sent_at" type="DATETIME" jt="93" />
+			<column name="content" type="INT" jt="4" mandatory="y" />
+			<column name="sent_at" type="DATETIME" jt="93" mandatory="y" />
 			<index name="pk_messages" unique="PRIMARY_KEY" >
 				<column name="message_id" />
 			</index>
 			<index name="unq_thread_id" unique="UNIQUE_INDEX" >
 				<column name="thread_id" />
 			</index>
+			<index name="unq_user_id" unique="UNIQUE_INDEX" >
+				<column name="user_id" />
+			</index>
+			<fk name="fk_messages_threads" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="threads" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="thread_id" pk="thread_id" />
+			</fk>
+			<fk name="fk_messages_user" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="user_id" pk="user_id" />
+			</fk>
+		</table>
+		<table name="parent_role" prior="Entity" >
+			<column name="parent_role_id" type="INT" jt="4" mandatory="y" />
+			<column name="parent_role_name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="description" type="VARCHAR" length="9999999" jt="12" />
+			<index name="pk_parent_role" unique="PRIMARY_KEY" >
+				<column name="parent_role_id" />
+			</index>
 		</table>
 		<table name="participant" prior="participants" >
 			<column name="participant_id" type="INT" jt="4" mandatory="y" />
 			<column name="thread_id" type="INT" jt="4" mandatory="y" />
 			<column name="user_id" type="INT" jt="4" mandatory="y" />
+			<column name="updated_at" type="DATETIME" jt="93" />
 			<index name="pk_participants" unique="PRIMARY_KEY" >
 				<column name="participant_id" />
 			</index>
@@ -63,94 +106,129 @@
 			<index name="unq_user_id" unique="UNIQUE_INDEX" >
 				<column name="user_id" />
 			</index>
+			<fk name="fk_participant_threads" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="threads" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="thread_id" pk="thread_id" />
+			</fk>
+			<fk name="fk_participant_user" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="user_id" pk="user_id" />
+			</fk>
 		</table>
 		<table name="patient" prior="patient_id" >
 			<column name="patient_id" type="INT" jt="4" mandatory="y" />
 			<column name="user_id" type="INT" jt="4" />
-			<column name="ehr_record_id" type="INT" jt="4" />
+			<column name="primary_provider_id" type="INT" jt="4" mandatory="y" />
+			<column name="date_of_birth" type="DATE" jt="91" mandatory="y" />
+			<column name="gender" type="VARCHAR" jt="12" mandatory="y" />
+			<column name="blood_type" type="VARCHAR" jt="12" mandatory="y" />
+			<column name="insurance_provider" type="VARCHAR" jt="12" />
 			<index name="pk_patient" unique="PRIMARY_KEY" >
 				<column name="patient_id" />
 			</index>
 			<index name="unq_user_id" unique="UNIQUE_INDEX" >
 				<column name="user_id" />
 			</index>
-			<fk name="fk_patient_appointment" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="appointment" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
-				<fk_column name="patient_id" pk="patient_id" />
-			</fk>
+			<index name="unq_primary_provider_id" unique="UNIQUE_INDEX" >
+				<column name="primary_provider_id" />
+			</index>
 		</table>
 		<table name="permissions" prior="Entity" >
 			<column name="permission_id" type="INT" jt="4" mandatory="y" />
-			<column name="permission_name" type="VARCHAR" length="100" jt="12" mandatory="y" />
-			<column name="permission_description" type="VARCHAR" length="100" jt="12" />
+			<column name="scope" prior="permission_name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="action" prior="permission_description" type="VARCHAR" length="100" jt="12" mandatory="y" />
 			<index name="pk_permissions" unique="PRIMARY_KEY" >
 				<column name="permission_id" />
 			</index>
-			<fk name="fk_permissions_role_permissions" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="role_permissions" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+			<fk name="fk_permissions_role_permissions" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="role_permissions" type="Identifying" mandatory="y" cardinality="OneMore" range_from="0" range_to="0" >
 				<fk_column name="permission_id" pk="permission_id" />
 			</fk>
-			<fk name="fk_permissions_user_permissions" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user_permissions" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+			<fk name="fk_permissions_user_permissions" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user_permissions" type="Identifying" mandatory="y" cardinality="OneMore" range_from="0" range_to="0" >
 				<fk_column name="permission_id" pk="permission_id" />
 			</fk>
 		</table>
 		<table name="role" prior="Entity" >
 			<column name="role_id" type="INT" jt="4" mandatory="y" />
+			<column name="parent_role_id" type="INT" jt="4" mandatory="y" />
 			<column name="role_name" type="VARCHAR" length="50" jt="12" mandatory="y" />
 			<column name="description" type="VARCHAR" jt="12" />
 			<index name="pk_role" unique="PRIMARY_KEY" >
 				<column name="role_id" />
 			</index>
-			<fk name="fk_role_user_role" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user_role" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+			<index name="unq_parent_role_id" unique="UNIQUE_INDEX" >
+				<column name="parent_role_id" />
+			</index>
+			<fk name="fk_role_user_role" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user_role" type="Identifying" mandatory="y" cardinality="OneMore" range_from="0" range_to="0" >
 				<fk_column name="role_id" pk="role_id" />
 			</fk>
-			<fk name="fk_role_role_permissions" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="role_permissions" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+			<fk name="fk_role_role_permissions" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="role_permissions" type="Identifying" mandatory="y" cardinality="OneMore" range_from="0" range_to="0" >
 				<fk_column name="role_id" pk="role_id" />
+			</fk>
+			<fk name="fk_role_parent_role" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="parent_role" type="NonIdentifying" mandatory="n" cardinality="ZeroOne" range_from="0" range_to="0" >
+				<fk_column name="parent_role_id" pk="parent_role_id" />
 			</fk>
 		</table>
 		<table name="role_permissions" prior="Entity" >
 			<column name="role_id" type="INT" jt="4" mandatory="y" />
 			<column name="permission_id" type="INT" jt="4" mandatory="y" />
 			<column name="created_at" type="DATETIME" length="9999999" jt="93" mandatory="y" />
-			<column name="last_updated" type="DATE" jt="91" />
+			<column name="last_updated" type="DATETIME" length="9999999" jt="93" />
 			<index name="unq_permission_id" unique="UNIQUE_INDEX" >
 				<column name="permission_id" />
+			</index>
+			<index name="pk_role_id" unique="PRIMARY_KEY" >
+				<column name="role_id" />
 			</index>
 		</table>
 		<table name="schedule" prior="schedulle" >
 			<column name="schedule_id" type="INT" jt="4" mandatory="y" />
-			<column name="employee_id" prior="provider_id" type="INT" jt="4" />
-			<column name="date" type="DATE" jt="91" />
-			<column name="start_time" type="DATETIME" jt="93" />
-			<column name="end_time" type="DATETIME" jt="93" />
+			<column name="staff_id" prior="employee_id" type="INT" jt="4" mandatory="y" />
+			<column name="start_time" type="DATETIME" jt="93" mandatory="y" />
+			<column name="end_time" type="DATETIME" jt="93" mandatory="y" />
 			<index name="pk_schedule" unique="PRIMARY_KEY" >
 				<column name="schedule_id" />
 			</index>
 			<index name="unq_employee_id" unique="UNIQUE_INDEX" >
-				<column name="employee_id" />
+				<column name="staff_id" />
 			</index>
-			<fk name="fk_schedule_time_slot" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="time_slot" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
-				<fk_column name="schedule_id" pk="schedule_id" />
+			<fk name="fk_schedule_staff" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="staff" type="NonIdentifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="staff_id" pk="staff_id" />
+			</fk>
+		</table>
+		<table name="staff" prior="business_user" >
+			<column name="staff_id" prior="employee_id" type="INT" jt="4" mandatory="y" />
+			<column name="user_id" type="INT" jt="4" />
+			<column name="department_id" type="INT" jt="4" />
+			<column name="specialization" type="VARCHAR" jt="12" />
+			<column name="hire_date" type="DATE" jt="91" />
+			<index name="pk_employee" unique="PRIMARY_KEY" >
+				<column name="staff_id" />
+			</index>
+			<index name="unq_user_id" unique="UNIQUE_INDEX" >
+				<column name="user_id" />
+			</index>
+			<index name="unq_department_id" unique="UNIQUE_INDEX" >
+				<column name="department_id" />
+			</index>
+			<fk name="fk_staff_patient" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="patient" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="staff_id" pk="primary_provider_id" />
+			</fk>
+			<fk name="fk_staff_department" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="department" type="NonIdentifying" mandatory="n" cardinality="ZeroOne" range_from="0" range_to="0" >
+				<fk_column name="department_id" pk="department_id" />
 			</fk>
 		</table>
 		<table name="threads" prior="Entity" >
 			<column name="thread_id" type="INT" jt="4" mandatory="y" />
-			<column name="subject" type="VARCHAR" jt="12" />
-			<column name="created_at" type="DATETIME" length="9999999" jt="93" />
+			<column name="subject" type="VARCHAR" jt="12" mandatory="y" />
+			<column name="created_at" type="DATETIME" length="9999999" jt="93" mandatory="y" />
 			<column name="updated_at" type="DATE" jt="91" />
 			<index name="pk_threads" unique="PRIMARY_KEY" >
 				<column name="thread_id" />
 			</index>
-			<fk name="fk_threads_messages" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="messages" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
-				<fk_column name="thread_id" pk="thread_id" />
-			</fk>
-			<fk name="fk_threads_participant" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="participant" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
-				<fk_column name="thread_id" pk="thread_id" />
-			</fk>
 		</table>
 		<table name="time_slot" prior="time" >
 			<column name="time_slot_id" type="INT" jt="4" mandatory="y" />
 			<column name="schedule_id" type="INT" jt="4" mandatory="y" />
-			<column name="start_time" type="DATETIME" length="9999999" jt="93" />
-			<column name="end_time" type="DATETIME" length="9999999" jt="93" />
+			<column name="start_time" type="DATETIME" length="9999999" jt="93" mandatory="y" />
+			<column name="end_time" type="DATETIME" length="9999999" jt="93" mandatory="y" />
 			<column name="status" type="CHAR" length="10" jt="1" />
 			<index name="pk_time_slot" unique="PRIMARY_KEY" >
 				<column name="time_slot_id" />
@@ -158,8 +236,8 @@
 			<index name="unq_schedule_id" unique="UNIQUE_INDEX" >
 				<column name="schedule_id" />
 			</index>
-			<fk name="fk_time_slot_appointment" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="appointment" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
-				<fk_column name="time_slot_id" pk="time_slot_id" />
+			<fk name="fk_time_slot_schedule" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="schedule" type="NonIdentifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+				<fk_column name="schedule_id" pk="schedule_id" />
 			</fk>
 		</table>
 		<table name="user" prior="Entity" >
@@ -170,60 +248,62 @@
 			<column name="password_hash" type="VARCHAR" length="255" jt="12" mandatory="y" >
 				<comment><![CDATA[Securely hashed password]]></comment>
 			</column>
-			<column name="created_at" type="DATETIME" jt="93" />
+			<column name="created_at" type="DATETIME" jt="93" mandatory="y" />
 			<index name="pk_user" unique="PRIMARY_KEY" >
 				<column name="user_id" />
 			</index>
-			<fk name="fk_user_user_role" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user_role" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+			<fk name="fk_user_user_permissions" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user_permissions" type="Identifying" mandatory="y" cardinality="OneMore" range_from="0" range_to="0" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
-			<fk name="fk_user_user_permissions" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user_permissions" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+			<fk name="fk_user_patient" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="patient" type="NonIdentifying" mandatory="n" cardinality="ZeroOne" range_from="0" range_to="0" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
-			<fk name="fk_user_participant" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="participant" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+			<fk name="fk_user_business_user" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="staff" type="NonIdentifying" mandatory="n" cardinality="ZeroOne" range_from="0" range_to="0" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
-			<fk name="fk_user_messages" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="messages" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
-				<fk_column name="user_id" pk="message_id" />
-			</fk>
-			<fk name="fk_user_patient" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="patient" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
-				<fk_column name="user_id" pk="user_id" />
-			</fk>
-			<fk name="fk_user_business_user" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="business_user" type="Identifying" mandatory="y" cardinality="One" range_from="0" range_to="0" >
+			<fk name="fk_user_user_role" to_schema="smarmedsystems_logcial_db.INSTANCE" to_table="user_role" type="Identifying" mandatory="y" cardinality="OneMore" range_from="0" range_to="0" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
 		</table>
 		<table name="user_permissions" prior="user_permissions " >
 			<column name="user_id" type="INT" jt="4" mandatory="y" />
 			<column name="permission_id" type="INT" jt="4" mandatory="y" />
-			<column name="allow" type="BOOLEAN" jt="-7" />
-			<column name="deny" type="BOOLEAN" jt="-7" />
+			<column name="is_allowed" prior="allow" type="BOOLEAN" jt="-7" mandatory="y" />
+			<column name="is_denied" prior="deny" type="BOOLEAN" jt="-7" mandatory="y" />
 			<index name="unq_permission_id" unique="UNIQUE_INDEX" >
 				<column name="permission_id" />
+			</index>
+			<index name="pk_user_id" unique="PRIMARY_KEY" >
+				<column name="user_id" />
 			</index>
 		</table>
 		<table name="user_role" prior="Entity" >
 			<column name="role_id" type="INT" jt="4" mandatory="y" />
 			<column name="user_id" type="INT" jt="4" mandatory="y" />
 			<column name="created_at" type="DATETIME" length="9999999" jt="93" mandatory="y" />
-			<column name="last_updated" type="DATETIME" jt="93" />
-			<index name="unq_role_id" unique="UNIQUE_INDEX" >
+			<column name="last_updated" type="DATETIME" length="9999999" jt="93" />
+			<index name="unq_role_id" unique="UNIQUE_KEY" >
 				<column name="role_id" />
+				<column name="user_id" />
 			</index>
 		</table>
 	</schema>
 	<layout name="Default Layout" id="Layout-a47" show_relation="columns" >
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="appointment" color="C1D8EE" x="480" y="800" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="business_user" color="C1D8EE" x="736" y="608" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="messages" color="C1D8EE" x="288" y="304" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="participant" color="C1D8EE" x="304" y="560" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="appointment" color="C1D8EE" x="480" y="864" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="audit_log" color="C1D8EE" x="736" y="288" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="blackout_dates" color="C1D8EE" x="1168" y="736" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="department" color="C1D8EE" x="960" y="624" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="messages" color="C1D8EE" x="304" y="288" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="parent_role" color="C1D8EE" x="1136" y="464" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="participant" color="C1D8EE" x="304" y="592" />
 		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="patient" color="C1D8EE" x="496" y="624" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="permissions" color="C1D8EE" x="736" y="160" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="role" color="C1D8EE" x="944" y="448" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="permissions" color="C1D8EE" x="752" y="176" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="role" color="C1D8EE" x="960" y="464" />
 		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="role_permissions" color="C1D8EE" x="976" y="272" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="schedule" color="C1D8EE" x="1024" y="752" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="threads" color="C1D8EE" x="112" y="384" />
-		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="time_slot" color="C1D8EE" x="768" y="816" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="schedule" color="C1D8EE" x="1024" y="848" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="staff" color="C1D8EE" x="736" y="640" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="threads" color="C1D8EE" x="160" y="448" />
+		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="time_slot" color="C1D8EE" x="736" y="864" />
 		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user" color="C1D8EE" x="512" y="416" />
 		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user_permissions" color="C1D8EE" x="512" y="224" />
 		<entity schema="smarmedsystems_logcial_db.INSTANCE" name="user_role" color="C1D8EE" x="736" y="448" />

@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="smarmedsystems_logcial_db" id="PostgreSQL-20fc" database="PostgreSQL" >
+	<schema name="instance" catalogname="smarmedsystems_logcial_db" >
+		<table name="appointments" prior="appointment" >
+			<column name="appointment_id" type="integer" jt="4" mandatory="y" />
+			<column name="patient_id" type="integer" jt="4" mandatory="y" />
+			<column name="staff_id" type="integer" jt="4" mandatory="y" />
+			<column name="time_slot_id" type="integer" jt="4" mandatory="y" />
+			<column name="status" type="varchar" length="15" jt="12" />
+			<index name="pk_appointments" unique="PRIMARY_KEY" >
+				<column name="appointment_id" />
+			</index>
+			<index name="unq_appointment" unique="UNIQUE_KEY" >
+				<column name="time_slot_id" />
+			</index>
+			<index name="idx_appointments_patient_id" unique="NORMAL" >
+				<column name="patient_id" />
+			</index>
+			<index name="idx_appointments_staff_id" unique="NORMAL" >
+				<column name="staff_id" />
+			</index>
+			<fk name="fk_appointment_patient" to_schema="smarmedsystems_logcial_db.instance" to_table="patients" delete_action="cascade" update_action="cascade" >
+				<fk_column name="patient_id" pk="patient_id" />
+			</fk>
+			<fk name="fk_appointment_staff" to_schema="smarmedsystems_logcial_db.instance" to_table="staff" delete_action="cascade" update_action="cascade" >
+				<fk_column name="staff_id" pk="staff_id" />
+			</fk>
+			<fk name="fk_appointment_time_slot" to_schema="smarmedsystems_logcial_db.instance" to_table="time_slots" delete_action="cascade" update_action="cascade" >
+				<fk_column name="time_slot_id" pk="time_slot_id" />
+			</fk>
+		</table>
+		<table name="audit_logs" prior="audit_log" >
+			<column name="log_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="integer" jt="4" />
+			<column name="action" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="timestamp" type="timestamp" jt="93" mandatory="y" />
+			<column name="details" type="varchar" jt="12" />
+			<index name="pk_audit_log" unique="PRIMARY_KEY" >
+				<column name="log_id" />
+			</index>
+			<index name="idx_audit_logs_user_id" unique="NORMAL" >
+				<column name="user_id" />
+			</index>
+			<fk name="fk_audit_log_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="setNull" update_action="cascade" >
+				<fk_column name="user_id" pk="user_id" />
+			</fk>
+		</table>
+		<table name="departments" prior="department" >
+			<column name="department_id" type="integer" jt="4" mandatory="y" />
+			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="head_of_department" type="integer" jt="4" />
+			<index name="pk_department" unique="PRIMARY_KEY" >
+				<column name="department_id" />
+			</index>
+			<fk name="fk_departments_staff" to_schema="smarmedsystems_logcial_db.instance" to_table="staff" delete_action="cascade" update_action="cascade" >
+				<fk_column name="head_of_department" pk="staff_id" />
+			</fk>
+		</table>
+		<table name="messages" >
+			<column name="message_id" type="integer" jt="4" mandatory="y" />
+			<column name="thread_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="content" type="text" jt="12" mandatory="y" />
+			<column name="sent_at" type="timestamp" jt="93" mandatory="y" />
+			<index name="pk_messages" unique="PRIMARY_KEY" >
+				<column name="message_id" />
+			</index>
+			<index name="idx_messages_thread_id" unique="NORMAL" >
+				<column name="thread_id" />
+			</index>
+			<fk name="fk_messages_threads" to_schema="smarmedsystems_logcial_db.instance" to_table="threads" delete_action="cascade" update_action="cascade" >
+				<fk_column name="thread_id" pk="thread_id" />
+			</fk>
+			<fk name="fk_messages_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+				<fk_column name="user_id" pk="user_id" />
+			</fk>
+		</table>
+		<table name="participants" prior="participant" >
+			<column name="participant_id" type="integer" jt="4" mandatory="y" />
+			<column name="thread_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="updated_at" type="timestamp" jt="93" />
+			<index name="pk_participants" unique="PRIMARY_KEY" >
+				<column name="participant_id" />
+			</index>
+			<index name="idx_participants_thread_id" unique="NORMAL" >
+				<column name="thread_id" />
+			</index>
+			<index name="idx_participants_user_id" unique="NORMAL" >
+				<column name="user_id" />
+			</index>
+			<fk name="fk_participant_threads" to_schema="smarmedsystems_logcial_db.instance" to_table="threads" delete_action="cascade" update_action="cascade" >
+				<fk_column name="thread_id" pk="thread_id" />
+			</fk>
+			<fk name="fk_participant_user" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+				<fk_column name="user_id" pk="user_id" />
+			</fk>
+		</table>
+		<table name="patients" prior="patient" >
+			<column name="patient_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="integer" jt="4" />
+			<column name="primary_provider_id" type="integer" jt="4" mandatory="y" />
+			<column name="date_of_birth" type="date" jt="91" mandatory="y" />
+			<column name="gender" type="varchar" jt="12" mandatory="y" />
+			<column name="blood_type" type="varchar" jt="12" mandatory="y" />
+			<column name="insurance_provider" type="varchar" jt="12" />
+			<index name="pk_patient" unique="PRIMARY_KEY" >
+				<column name="patient_id" />
+			</index>
+			<fk name="fk_patient_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+				<fk_column name="user_id" pk="user_id" />
+			</fk>
+			<fk name="fk_patient_staff" to_schema="smarmedsystems_logcial_db.instance" to_table="staff" delete_action="cascade" update_action="cascade" >
+				<fk_column name="primary_provider_id" pk="staff_id" />
+			</fk>
+		</table>
+		<table name="permissions" >
+			<column name="permission_id" type="integer" jt="4" mandatory="y" />
+			<column name="scope" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="action" type="varchar" length="100" jt="12" mandatory="y" />
+			<index name="pk_permissions" unique="PRIMARY_KEY" >
+				<column name="permission_id" />
+			</index>
+		</table>
+		<table name="role_permissions" >
+			<column name="role_id" type="integer" jt="4" mandatory="y" />
+			<column name="permission_id" type="integer" jt="4" mandatory="y" />
+			<column name="created_at" type="timestamp" jt="93" mandatory="y" />
+			<column name="last_updated" type="timestamp" jt="93" />
+			<index name="pk_role_permissions" unique="PRIMARY_KEY" >
+				<column name="role_id" />
+				<column name="permission_id" />
+			</index>
+			<fk name="fk_role_permissions_roles" to_schema="smarmedsystems_logcial_db.instance" to_table="roles" delete_action="cascade" update_action="cascade" >
+				<fk_column name="role_id" pk="role_id" />
+			</fk>
+			<fk name="fk_role_permissions_permissions" to_schema="smarmedsystems_logcial_db.instance" to_table="permissions" delete_action="cascade" update_action="cascade" >
+				<fk_column name="permission_id" pk="permission_id" />
+			</fk>
+		</table>
+		<table name="roles" prior="role" >
+			<column name="role_id" type="integer" jt="4" mandatory="y" />
+			<column name="parent_role_id" type="integer" jt="4" />
+			<column name="role_name" type="varchar" length="50" jt="12" mandatory="y" />
+			<column name="description" type="varchar" jt="12" />
+			<index name="pk_role" unique="PRIMARY_KEY" >
+				<column name="role_id" />
+			</index>
+			<fk name="fk_roles_roles" to_schema="smarmedsystems_logcial_db.instance" to_table="roles" delete_action="setNull" update_action="cascade" >
+				<fk_column name="parent_role_id" pk="role_id" />
+			</fk>
+		</table>
+		<table name="schedules" prior="schedule" >
+			<column name="schedule_id" type="integer" jt="4" mandatory="y" />
+			<column name="staff_id" type="integer" jt="4" mandatory="y" />
+			<column name="start_time" type="timestamp" jt="93" mandatory="y" />
+			<column name="end_time" type="timestamp" jt="93" mandatory="y" />
+			<index name="pk_schedule" unique="PRIMARY_KEY" >
+				<column name="schedule_id" />
+			</index>
+			<fk name="fk_schedule_staff" to_schema="smarmedsystems_logcial_db.instance" to_table="staff" delete_action="cascade" update_action="cascade" >
+				<fk_column name="staff_id" pk="staff_id" />
+			</fk>
+		</table>
+		<table name="staff" >
+			<column name="staff_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="department_id" type="integer" jt="4" />
+			<column name="specialization" type="varchar" jt="12" />
+			<column name="hire_date" type="date" jt="91" />
+			<index name="pk_employee" unique="PRIMARY_KEY" >
+				<column name="staff_id" />
+			</index>
+			<index name="idx_staff_department_id" unique="NORMAL" >
+				<column name="department_id" />
+			</index>
+			<fk name="fk_staff_department" to_schema="smarmedsystems_logcial_db.instance" to_table="departments" delete_action="restrict" update_action="cascade" >
+				<fk_column name="department_id" pk="department_id" />
+			</fk>
+			<fk name="fk_staff_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+				<fk_column name="user_id" pk="user_id" />
+			</fk>
+		</table>
+		<table name="threads" >
+			<column name="thread_id" type="integer" jt="4" mandatory="y" />
+			<column name="subject" type="varchar" jt="12" mandatory="y" />
+			<column name="created_at" type="timestamp" jt="93" mandatory="y" />
+			<column name="updated_at" type="timestamp" jt="93" />
+			<index name="pk_threads" unique="PRIMARY_KEY" >
+				<column name="thread_id" />
+			</index>
+		</table>
+		<table name="time_slots" prior="time_slot" >
+			<column name="time_slot_id" type="integer" jt="4" mandatory="y" />
+			<column name="schedule_id" type="integer" jt="4" mandatory="y" />
+			<column name="start_time" type="timestamp" jt="93" mandatory="y" />
+			<column name="end_time" type="timestamp" jt="93" mandatory="y" />
+			<column name="status" type="varchar" jt="12" />
+			<index name="pk_time_slot" unique="PRIMARY_KEY" >
+				<column name="time_slot_id" />
+			</index>
+			<index name="idx_time_slots_schedule_id" unique="NORMAL" >
+				<column name="schedule_id" />
+			</index>
+			<constraint name="chk_valid_timespan" >
+				<string><![CDATA[end_time > start_time]]></string>
+			</constraint>
+			<fk name="fk_time_slot_schedule" to_schema="smarmedsystems_logcial_db.instance" to_table="schedules" delete_action="cascade" update_action="cascade" >
+				<fk_column name="schedule_id" pk="schedule_id" />
+			</fk>
+		</table>
+		<table name="user_permissions" >
+			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="permission_id" type="integer" jt="4" mandatory="y" />
+			<column name="is_allowed" type="boolean" jt="16" mandatory="y" />
+			<column name="is_denied" type="boolean" jt="16" mandatory="y" />
+			<index name="pk_user_permissions" unique="PRIMARY_KEY" >
+				<column name="user_id" />
+				<column name="permission_id" />
+			</index>
+			<fk name="fk_user_permissions_permissions" to_schema="smarmedsystems_logcial_db.instance" to_table="permissions" delete_action="cascade" update_action="cascade" >
+				<fk_column name="permission_id" pk="permission_id" />
+			</fk>
+			<fk name="fk_user_permissions_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+				<fk_column name="user_id" pk="user_id" />
+			</fk>
+		</table>
+		<table name="user_role" >
+			<column name="role_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="created_at" type="timestamp" jt="93" mandatory="y" />
+			<column name="last_updated" type="timestamp" jt="93" />
+			<index name="pk_user_role" unique="PRIMARY_KEY" >
+				<column name="role_id" />
+				<column name="user_id" />
+			</index>
+			<fk name="fk_user_role_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+				<fk_column name="user_id" pk="user_id" />
+			</fk>
+			<fk name="fk_user_role_roles" to_schema="smarmedsystems_logcial_db.instance" to_table="roles" delete_action="cascade" update_action="cascade" >
+				<fk_column name="role_id" pk="role_id" />
+			</fk>
+		</table>
+		<table name="users" prior="user" >
+			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="first_name" type="varchar" length="50" jt="12" mandatory="y" />
+			<column name="last_name" type="varchar" length="50" jt="12" mandatory="y" />
+			<column name="email" type="varchar" jt="12" mandatory="y" />
+			<column name="password_hash" type="text" jt="12" mandatory="y" >
+				<comment><![CDATA[Securely hashed password]]></comment>
+			</column>
+			<column name="created_at" type="timestamp" jt="93" mandatory="y" />
+			<index name="pk_user" unique="PRIMARY_KEY" >
+				<column name="user_id" />
+			</index>
+		</table>
+	</schema>
+	<layout name="Default Layout" id="Layout-1fc1" confirmed="y" show_relation="columns" >
+		<entity schema="smarmedsystems_logcial_db.instance" name="appointments" color="C1D8EE" x="480" y="864" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="audit_logs" color="C1D8EE" x="736" y="288" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="departments" color="C1D8EE" x="960" y="624" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="messages" color="C1D8EE" x="304" y="288" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="participants" color="C1D8EE" x="304" y="592" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="patients" color="C1D8EE" x="496" y="624" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="permissions" color="C1D8EE" x="752" y="176" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="role_permissions" color="C1D8EE" x="976" y="272" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="roles" color="C1D8EE" x="960" y="464" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="schedules" color="C1D8EE" x="1024" y="848" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="staff" color="C1D8EE" x="736" y="640" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="threads" color="C1D8EE" x="160" y="448" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="time_slots" color="C1D8EE" x="736" y="864" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="user_permissions" color="C1D8EE" x="512" y="224" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="user_role" color="C1D8EE" x="736" y="448" />
+		<entity schema="smarmedsystems_logcial_db.instance" name="users" color="C1D8EE" x="512" y="416" />
+		<callout x="48" y="48" pointer="Round" >
+			<comment><![CDATA[This is a layout - a diagram with tools.
+- Create new entities by right-clicking the layout. 
+- Double-click entity headers to edit.
+- For a better understanding of the schema, create multiple layouts.
+- Deploy the model into the database by converting it first to the physical design.]]></comment>
+		</callout>
+	</layout>
+</project>
