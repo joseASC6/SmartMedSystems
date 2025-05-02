@@ -1,25 +1,27 @@
 import React, { useState, Suspense } from 'react';
-import { Heart, Activity, Users, Clock, ArrowRight } from 'lucide-react';
+import { Heart, Activity, Users, Clock, ArrowRight, Calendar, MessageSquare, Video } from 'lucide-react';
 import { AuthProvider } from './contexts/AuthContext';
 import Navigation from './components/Navigation';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import RoleSelection from './pages/RoleSelection';
+import PatientDataForm from './pages/patient/DataForm';
+import StaffDataForm from './pages/staff/DataForm';
 
 // Lazy load the dashboards for better performance
 const PatientHome = React.lazy(() => import('./pages/patient/Home.tsx'));
-const ProviderDashboard = React.lazy(() => import('./pages/provider/Dashboard.tsx'));
+const StaffDashboard = React.lazy(() => import('./pages/staff/Dashboard.tsx'));
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
-  const [userRole, setUserRole] = useState<'patient' | 'provider' | null>(null);
+  const [userRole, setUserRole] = useState<'patient' | 'staff' | null>(null);
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page);
   };
 
-  const handleRoleSelect = (role: 'patient' | 'provider') => {
+  const handleRoleSelect = (role: 'patient' | 'staff') => {
     setUserRole(role);
   };
 
@@ -31,6 +33,10 @@ function App() {
         return <Signup onNavigate={handleNavigate} onSignupSuccess={() => handleNavigate('role-selection')} />;
       case 'role-selection':
         return <RoleSelection onNavigate={handleNavigate} onRoleSelect={handleRoleSelect} />;
+      case 'patient-data':
+        return <PatientDataForm onNavigate={handleNavigate} />;
+      case 'staff-data':
+        return <StaffDataForm onNavigate={handleNavigate} />;
       case 'patient-home':
         return (
           <ProtectedRoute requiredRole="patient" onNavigate={handleNavigate}>
@@ -39,11 +45,11 @@ function App() {
             </Suspense>
           </ProtectedRoute>
         );
-      case 'provider-dashboard':
+      case 'staff-dashboard':
         return (
-          <ProtectedRoute requiredRole="provider" onNavigate={handleNavigate}>
+          <ProtectedRoute requiredRole="staff" onNavigate={handleNavigate}>
             <Suspense fallback={<div>Loading...</div>}>
-              <ProviderDashboard />
+              <StaffDashboard />
             </Suspense>
           </ProtectedRoute>
         );
@@ -104,25 +110,17 @@ function App() {
                   <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
                     <div className="flex flex-col items-center">
                       <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                        
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
-</svg>
-
+                        <Calendar className="h-6 w-6" />
                       </div>
                       <h3 className="mt-4 text-lg font-medium text-gray-900">Appointment Scheduling</h3>
                       <p className="mt-2 text-base text-gray-500 text-center">
-                        Effortlessly schedule your next online appointment with one of our trusted medical professionals and sign up for notifications
+                        Effortlessly schedule your next online appointment with one of our trusted medical professionals
                       </p>
                     </div>
 
                     <div className="flex flex-col items-center">
                       <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                      
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-</svg>
-
+                        <MessageSquare className="h-6 w-6" />
                       </div>
                       <h3 className="mt-4 text-lg font-medium text-gray-900">Live Chat</h3>
                       <p className="mt-2 text-base text-gray-500 text-center">
@@ -132,15 +130,11 @@ function App() {
 
                     <div className="flex flex-col items-center">
                       <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                        
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
-</svg>
-
+                        <Video className="h-6 w-6" />
                       </div>
                       <h3 className="mt-4 text-lg font-medium text-gray-900">Video Call</h3>
                       <p className="mt-2 text-base text-gray-500 text-center">
-                      Join video calls with your provider and attend appointments remotely
+                        Join video calls with your provider and attend appointments remotely
                       </p>
                     </div>
                   </div>

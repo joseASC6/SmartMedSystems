@@ -4,13 +4,13 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface RoleSelectionProps {
   onNavigate: (page: string) => void;
-  onRoleSelect: (role: 'patient' | 'provider') => void;
+  onRoleSelect: (role: 'patient' | 'staff') => void;
 }
 
 function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
   const { login } = useAuth();
 
-  const handleRoleSelect = (role: 'patient' | 'provider') => {
+  const handleRoleSelect = (role: 'patient' | 'staff') => {
     console.log('Selected role:', role);
     
     // Create a mock token for demonstration
@@ -22,8 +22,8 @@ function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
     // Update parent component state
     onRoleSelect(role);
     
-    // Navigate to appropriate dashboard
-    const targetPage = role === 'patient' ? 'patient-home' : 'provider-dashboard';
+    // Navigate to the appropriate data collection form
+    const targetPage = role === 'patient' ? 'patient-data' : 'staff-data';
     console.log('Navigating to:', targetPage);
     
     onNavigate(targetPage);
@@ -59,15 +59,15 @@ function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
             </button>
 
             <button
-              onClick={() => handleRoleSelect('provider')}
+              onClick={() => handleRoleSelect('staff')}
               className="w-full flex items-center justify-center px-8 py-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
             >
               <div className="text-center">
                 <Stethoscope className="mx-auto h-12 w-12 text-blue-600" />
                 <div className="mt-4">
-                  <h3 className="text-lg font-medium text-gray-900">I'm a Healthcare Provider</h3>
+                  <h3 className="text-lg font-medium text-gray-900">I'm a Staff Member</h3>
                   <p className="mt-1 text-sm text-gray-500">
-                    Manage patient records, schedule appointments, and provide virtual consultations
+                    Join our healthcare team to provide care and support to patients
                   </p>
                 </div>
               </div>

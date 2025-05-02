@@ -31,7 +31,7 @@
 		</table>
 		<table name="audit_logs" prior="audit_log" >
 			<column name="log_id" type="integer" jt="4" mandatory="y" />
-			<column name="user_id" type="integer" jt="4" />
+			<column name="user_id" type="uuid" jt="102" />
 			<column name="action" type="varchar" length="100" jt="12" mandatory="y" />
 			<column name="timestamp" type="timestamp" jt="93" mandatory="y" />
 			<column name="details" type="varchar" jt="12" />
@@ -59,7 +59,7 @@
 		<table name="messages" >
 			<column name="message_id" type="integer" jt="4" mandatory="y" />
 			<column name="thread_id" type="integer" jt="4" mandatory="y" />
-			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="uuid" jt="102" mandatory="y" />
 			<column name="content" type="text" jt="12" mandatory="y" />
 			<column name="sent_at" type="timestamp" jt="93" mandatory="y" />
 			<index name="pk_messages" unique="PRIMARY_KEY" >
@@ -78,7 +78,7 @@
 		<table name="participants" prior="participant" >
 			<column name="participant_id" type="integer" jt="4" mandatory="y" />
 			<column name="thread_id" type="integer" jt="4" mandatory="y" />
-			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="uuid" jt="102" mandatory="y" />
 			<column name="updated_at" type="timestamp" jt="93" />
 			<index name="pk_participants" unique="PRIMARY_KEY" >
 				<column name="participant_id" />
@@ -98,7 +98,7 @@
 		</table>
 		<table name="patients" prior="patient" >
 			<column name="patient_id" type="integer" jt="4" mandatory="y" />
-			<column name="user_id" type="integer" jt="4" />
+			<column name="user_id" type="uuid" jt="102" />
 			<column name="primary_provider_id" type="integer" jt="4" mandatory="y" />
 			<column name="date_of_birth" type="date" jt="91" mandatory="y" />
 			<column name="gender" type="varchar" jt="12" mandatory="y" />
@@ -164,7 +164,7 @@
 		</table>
 		<table name="staff" >
 			<column name="staff_id" type="integer" jt="4" mandatory="y" />
-			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="uuid" jt="102" mandatory="y" />
 			<column name="department_id" type="integer" jt="4" />
 			<column name="specialization" type="varchar" jt="12" />
 			<column name="hire_date" type="date" jt="91" />
@@ -210,7 +210,7 @@
 			</fk>
 		</table>
 		<table name="user_permissions" >
-			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="uuid" jt="102" mandatory="y" />
 			<column name="permission_id" type="integer" jt="4" mandatory="y" />
 			<column name="is_allowed" type="boolean" jt="16" mandatory="y" />
 			<column name="is_denied" type="boolean" jt="16" mandatory="y" />
@@ -227,7 +227,7 @@
 		</table>
 		<table name="user_role" >
 			<column name="role_id" type="integer" jt="4" mandatory="y" />
-			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="uuid" jt="102" mandatory="y" />
 			<column name="created_at" type="timestamp" jt="93" mandatory="y" />
 			<column name="last_updated" type="timestamp" jt="93" />
 			<index name="pk_user_role" unique="PRIMARY_KEY" >
@@ -242,7 +242,7 @@
 			</fk>
 		</table>
 		<table name="users" prior="user" >
-			<column name="user_id" type="integer" jt="4" mandatory="y" />
+			<column name="user_id" type="uuid" jt="102" mandatory="y" />
 			<column name="first_name" type="varchar" length="50" jt="12" mandatory="y" />
 			<column name="last_name" type="varchar" length="50" jt="12" mandatory="y" />
 			<column name="email" type="varchar" jt="12" mandatory="y" />

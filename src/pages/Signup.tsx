@@ -10,14 +10,16 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: ''
   });
   const [errors, setErrors] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     password: '',
@@ -27,15 +29,21 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
   const validateForm = () => {
     let isValid = true;
     const newErrors = {
-      fullName: '',
+      firstName: '',
+      lastName: '',
       email: '',
       phone: '',
       password: '',
       confirmPassword: ''
     };
 
-    if (!formData.fullName) {
-      newErrors.fullName = 'Full name is required';
+    if (!formData.firstName) {
+      newErrors.firstName = 'First name is required';
+      isValid = false;
+    }
+
+    if (!formData.lastName) {
+      newErrors.lastName = 'Last name is required';
       isValid = false;
     }
 
@@ -78,9 +86,12 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      // Handle signup logic here
-      console.log('Form submitted:', formData);
-      onSignupSuccess(); // Navigate to role selection after successful signup
+      const signupData = {
+        ...formData,
+        created_at: new Date().toISOString()
+      };
+      console.log('Form submitted:', signupData);
+      onSignupSuccess();
     }
   };
 
@@ -125,24 +136,47 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                Full Name
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                First Name
               </label>
               <div className="mt-1">
                 <input
-                  id="fullName"
-                  name="fullName"
+                  id="firstName"
+                  name="firstName"
                   type="text"
-                  autoComplete="name"
+                  autoComplete="given-name"
                   required
                   className={`appearance-none block w-full px-3 py-2 border ${
-                    errors.fullName ? 'border-red-300' : 'border-gray-300'
+                    errors.firstName ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
-                  value={formData.fullName}
+                  value={formData.firstName}
                   onChange={handleChange}
                 />
-                {errors.fullName && (
-                  <p className="mt-2 text-sm text-red-600">{errors.fullName}</p>
+                {errors.firstName && (
+                  <p className="mt-2 text-sm text-red-600">{errors.firstName}</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                Last Name
+              </label>
+              <div className="mt-1">
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  autoComplete="family-name"
+                  required
+                  className={`appearance-none block w-full px-3 py-2 border ${
+                    errors.lastName ? 'border-red-300' : 'border-gray-300'
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+                {errors.lastName && (
+                  <p className="mt-2 text-sm text-red-600">{errors.lastName}</p>
                 )}
               </div>
             </div>
