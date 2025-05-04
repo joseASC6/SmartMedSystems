@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Activity } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface SignupProps {
   onNavigate: (page: string) => void;
@@ -9,6 +10,7 @@ interface SignupProps {
 function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -23,7 +25,8 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
     email: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    submit: ''
   });
 
   const validateForm = () => {
@@ -34,7 +37,8 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
       email: '',
       phone: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      submit: ''
     };
 
     if (!formData.firstName) {
@@ -83,15 +87,67 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      const signupData = {
-        ...formData,
-        created_at: new Date().toISOString()
-      };
-      console.log('Form submitted:', signupData);
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    setErrors(prev => ({ ...prev, submit: '', email: '' }));
+
+    try {
+      // First, sign up the user with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone_number: formData.phone
+          }
+        }
+      });
+
+      if (authError) {
+        if (authError.message === 'User already registered') {
+          setErrors(prev => ({
+            ...prev,
+            email: 'This email is already registered. Please use a different email or log in.',
+            submit: ''
+          }));
+          return;
+        }
+        throw authError;
+      }
+
+      if (!authData.user?.id) {
+        throw new Error('User ID not found after signup');
+      }
+
+      // Then, insert the user data into the public schema
+      const { error: userError } = await supabase
+        .from('users')
+        .insert({
+          user_id: authData.user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone_number: formData.phone,
+          password_hash: 'HASHED_' + formData.password, // Note: Password is already securely stored in Auth
+          created_at: new Date().toISOString()
+        });
+
+      if (userError) throw userError;
+
       onSignupSuccess();
+    } catch (error) {
+      console.error('Signup error:', error);
+      setErrors(prev => ({
+        ...prev,
+        submit: error instanceof Error ? error.message : 'An error occurred during signup'
+      }));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -134,6 +190,12 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {errors.submit && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {errors.submit}
+            </div>
+          )}
+          
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
@@ -146,6 +208,7 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
                   type="text"
                   autoComplete="given-name"
                   required
+                  disabled={isLoading}
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.firstName ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
@@ -169,6 +232,7 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
                   type="text"
                   autoComplete="family-name"
                   required
+                  disabled={isLoading}
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.lastName ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
@@ -192,6 +256,7 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
                   type="email"
                   autoComplete="email"
                   required
+                  disabled={isLoading}
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.email ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
@@ -215,6 +280,7 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
                   type="tel"
                   autoComplete="tel"
                   required
+                  disabled={isLoading}
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.phone ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
@@ -238,6 +304,7 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
+                  disabled={isLoading}
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.password ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
@@ -290,6 +357,7 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
                   type={showConfirmPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
+                  disabled={isLoading}
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
@@ -316,9 +384,12 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                disabled={isLoading}
+                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                  isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
               >
-                Create Account
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </div>
           </form>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project name="smarmedsystems_logcial_db" id="PostgreSQL-20fc" database="PostgreSQL" >
-	<schema name="instance" catalogname="smarmedsystems_logcial_db" >
+	<schema name="public" catalogname="smarmedsystems_logcial_db" >
 		<table name="appointments" prior="appointment" >
 			<column name="appointment_id" type="integer" jt="4" mandatory="y" />
 			<column name="patient_id" type="integer" jt="4" mandatory="y" />
@@ -19,13 +19,13 @@
 			<index name="idx_appointments_staff_id" unique="NORMAL" >
 				<column name="staff_id" />
 			</index>
-			<fk name="fk_appointment_patient" to_schema="smarmedsystems_logcial_db.instance" to_table="patients" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_appointment_patient" to_schema="smarmedsystems_logcial_db.public" to_table="patients" delete_action="cascade" update_action="cascade" >
 				<fk_column name="patient_id" pk="patient_id" />
 			</fk>
-			<fk name="fk_appointment_staff" to_schema="smarmedsystems_logcial_db.instance" to_table="staff" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_appointment_staff" to_schema="smarmedsystems_logcial_db.public" to_table="staff" delete_action="cascade" update_action="cascade" >
 				<fk_column name="staff_id" pk="staff_id" />
 			</fk>
-			<fk name="fk_appointment_time_slot" to_schema="smarmedsystems_logcial_db.instance" to_table="time_slots" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_appointment_time_slot" to_schema="smarmedsystems_logcial_db.public" to_table="time_slots" delete_action="cascade" update_action="cascade" >
 				<fk_column name="time_slot_id" pk="time_slot_id" />
 			</fk>
 		</table>
@@ -41,7 +41,7 @@
 			<index name="idx_audit_logs_user_id" unique="NORMAL" >
 				<column name="user_id" />
 			</index>
-			<fk name="fk_audit_log_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="setNull" update_action="cascade" >
+			<fk name="fk_audit_log_users" to_schema="smarmedsystems_logcial_db.public" to_table="users" delete_action="setNull" update_action="cascade" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
 		</table>
@@ -52,7 +52,7 @@
 			<index name="pk_department" unique="PRIMARY_KEY" >
 				<column name="department_id" />
 			</index>
-			<fk name="fk_departments_staff" to_schema="smarmedsystems_logcial_db.instance" to_table="staff" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_departments_staff" to_schema="smarmedsystems_logcial_db.public" to_table="staff" delete_action="cascade" update_action="cascade" >
 				<fk_column name="head_of_department" pk="staff_id" />
 			</fk>
 		</table>
@@ -68,10 +68,10 @@
 			<index name="idx_messages_thread_id" unique="NORMAL" >
 				<column name="thread_id" />
 			</index>
-			<fk name="fk_messages_threads" to_schema="smarmedsystems_logcial_db.instance" to_table="threads" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_messages_threads" to_schema="smarmedsystems_logcial_db.public" to_table="threads" delete_action="cascade" update_action="cascade" >
 				<fk_column name="thread_id" pk="thread_id" />
 			</fk>
-			<fk name="fk_messages_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_messages_users" to_schema="smarmedsystems_logcial_db.public" to_table="users" delete_action="cascade" update_action="cascade" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
 		</table>
@@ -89,10 +89,10 @@
 			<index name="idx_participants_user_id" unique="NORMAL" >
 				<column name="user_id" />
 			</index>
-			<fk name="fk_participant_threads" to_schema="smarmedsystems_logcial_db.instance" to_table="threads" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_participant_threads" to_schema="smarmedsystems_logcial_db.public" to_table="threads" delete_action="cascade" update_action="cascade" >
 				<fk_column name="thread_id" pk="thread_id" />
 			</fk>
-			<fk name="fk_participant_user" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_participant_user" to_schema="smarmedsystems_logcial_db.public" to_table="users" delete_action="cascade" update_action="cascade" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
 		</table>
@@ -107,10 +107,10 @@
 			<index name="pk_patient" unique="PRIMARY_KEY" >
 				<column name="patient_id" />
 			</index>
-			<fk name="fk_patient_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_patient_users" to_schema="smarmedsystems_logcial_db.public" to_table="users" delete_action="cascade" update_action="cascade" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
-			<fk name="fk_patient_staff" to_schema="smarmedsystems_logcial_db.instance" to_table="staff" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_patient_staff" to_schema="smarmedsystems_logcial_db.public" to_table="staff" delete_action="cascade" update_action="cascade" >
 				<fk_column name="primary_provider_id" pk="staff_id" />
 			</fk>
 		</table>
@@ -131,10 +131,10 @@
 				<column name="role_id" />
 				<column name="permission_id" />
 			</index>
-			<fk name="fk_role_permissions_roles" to_schema="smarmedsystems_logcial_db.instance" to_table="roles" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_role_permissions_roles" to_schema="smarmedsystems_logcial_db.public" to_table="roles" delete_action="cascade" update_action="cascade" >
 				<fk_column name="role_id" pk="role_id" />
 			</fk>
-			<fk name="fk_role_permissions_permissions" to_schema="smarmedsystems_logcial_db.instance" to_table="permissions" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_role_permissions_permissions" to_schema="smarmedsystems_logcial_db.public" to_table="permissions" delete_action="cascade" update_action="cascade" >
 				<fk_column name="permission_id" pk="permission_id" />
 			</fk>
 		</table>
@@ -146,7 +146,7 @@
 			<index name="pk_role" unique="PRIMARY_KEY" >
 				<column name="role_id" />
 			</index>
-			<fk name="fk_roles_roles" to_schema="smarmedsystems_logcial_db.instance" to_table="roles" delete_action="setNull" update_action="cascade" >
+			<fk name="fk_roles_roles" to_schema="smarmedsystems_logcial_db.public" to_table="roles" delete_action="setNull" update_action="cascade" >
 				<fk_column name="parent_role_id" pk="role_id" />
 			</fk>
 		</table>
@@ -158,7 +158,7 @@
 			<index name="pk_schedule" unique="PRIMARY_KEY" >
 				<column name="schedule_id" />
 			</index>
-			<fk name="fk_schedule_staff" to_schema="smarmedsystems_logcial_db.instance" to_table="staff" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_schedule_staff" to_schema="smarmedsystems_logcial_db.public" to_table="staff" delete_action="cascade" update_action="cascade" >
 				<fk_column name="staff_id" pk="staff_id" />
 			</fk>
 		</table>
@@ -174,10 +174,10 @@
 			<index name="idx_staff_department_id" unique="NORMAL" >
 				<column name="department_id" />
 			</index>
-			<fk name="fk_staff_department" to_schema="smarmedsystems_logcial_db.instance" to_table="departments" delete_action="restrict" update_action="cascade" >
+			<fk name="fk_staff_department" to_schema="smarmedsystems_logcial_db.public" to_table="departments" delete_action="restrict" update_action="cascade" >
 				<fk_column name="department_id" pk="department_id" />
 			</fk>
-			<fk name="fk_staff_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_staff_users" to_schema="smarmedsystems_logcial_db.public" to_table="users" delete_action="cascade" update_action="cascade" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
 		</table>
@@ -205,7 +205,7 @@
 			<constraint name="chk_valid_timespan" >
 				<string><![CDATA[end_time > start_time]]></string>
 			</constraint>
-			<fk name="fk_time_slot_schedule" to_schema="smarmedsystems_logcial_db.instance" to_table="schedules" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_time_slot_schedule" to_schema="smarmedsystems_logcial_db.public" to_table="schedules" delete_action="cascade" update_action="cascade" >
 				<fk_column name="schedule_id" pk="schedule_id" />
 			</fk>
 		</table>
@@ -218,10 +218,10 @@
 				<column name="user_id" />
 				<column name="permission_id" />
 			</index>
-			<fk name="fk_user_permissions_permissions" to_schema="smarmedsystems_logcial_db.instance" to_table="permissions" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_user_permissions_permissions" to_schema="smarmedsystems_logcial_db.public" to_table="permissions" delete_action="cascade" update_action="cascade" >
 				<fk_column name="permission_id" pk="permission_id" />
 			</fk>
-			<fk name="fk_user_permissions_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_user_permissions_users" to_schema="smarmedsystems_logcial_db.public" to_table="users" delete_action="cascade" update_action="cascade" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
 		</table>
@@ -234,10 +234,10 @@
 				<column name="role_id" />
 				<column name="user_id" />
 			</index>
-			<fk name="fk_user_role_users" to_schema="smarmedsystems_logcial_db.instance" to_table="users" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_user_role_users" to_schema="smarmedsystems_logcial_db.public" to_table="users" delete_action="cascade" update_action="cascade" >
 				<fk_column name="user_id" pk="user_id" />
 			</fk>
-			<fk name="fk_user_role_roles" to_schema="smarmedsystems_logcial_db.instance" to_table="roles" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_user_role_roles" to_schema="smarmedsystems_logcial_db.public" to_table="roles" delete_action="cascade" update_action="cascade" >
 				<fk_column name="role_id" pk="role_id" />
 			</fk>
 		</table>
@@ -257,22 +257,22 @@
 		</table>
 	</schema>
 	<layout name="Default Layout" id="Layout-1fc1" confirmed="y" show_relation="columns" >
-		<entity schema="smarmedsystems_logcial_db.instance" name="appointments" color="C1D8EE" x="480" y="864" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="audit_logs" color="C1D8EE" x="736" y="288" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="departments" color="C1D8EE" x="960" y="624" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="messages" color="C1D8EE" x="304" y="288" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="participants" color="C1D8EE" x="304" y="592" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="patients" color="C1D8EE" x="496" y="624" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="permissions" color="C1D8EE" x="752" y="176" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="role_permissions" color="C1D8EE" x="976" y="272" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="roles" color="C1D8EE" x="960" y="464" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="schedules" color="C1D8EE" x="1024" y="848" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="staff" color="C1D8EE" x="736" y="640" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="threads" color="C1D8EE" x="160" y="448" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="time_slots" color="C1D8EE" x="736" y="864" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="user_permissions" color="C1D8EE" x="512" y="224" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="user_role" color="C1D8EE" x="736" y="448" />
-		<entity schema="smarmedsystems_logcial_db.instance" name="users" color="C1D8EE" x="512" y="416" />
+		<entity schema="smarmedsystems_logcial_db.public" name="appointments" color="C1D8EE" x="480" y="864" />
+		<entity schema="smarmedsystems_logcial_db.public" name="audit_logs" color="C1D8EE" x="736" y="288" />
+		<entity schema="smarmedsystems_logcial_db.public" name="departments" color="C1D8EE" x="960" y="624" />
+		<entity schema="smarmedsystems_logcial_db.public" name="messages" color="C1D8EE" x="304" y="288" />
+		<entity schema="smarmedsystems_logcial_db.public" name="participants" color="C1D8EE" x="304" y="592" />
+		<entity schema="smarmedsystems_logcial_db.public" name="patients" color="C1D8EE" x="496" y="624" />
+		<entity schema="smarmedsystems_logcial_db.public" name="permissions" color="C1D8EE" x="752" y="176" />
+		<entity schema="smarmedsystems_logcial_db.public" name="role_permissions" color="C1D8EE" x="976" y="272" />
+		<entity schema="smarmedsystems_logcial_db.public" name="roles" color="C1D8EE" x="960" y="464" />
+		<entity schema="smarmedsystems_logcial_db.public" name="schedules" color="C1D8EE" x="1024" y="848" />
+		<entity schema="smarmedsystems_logcial_db.public" name="staff" color="C1D8EE" x="736" y="640" />
+		<entity schema="smarmedsystems_logcial_db.public" name="threads" color="C1D8EE" x="160" y="448" />
+		<entity schema="smarmedsystems_logcial_db.public" name="time_slots" color="C1D8EE" x="736" y="864" />
+		<entity schema="smarmedsystems_logcial_db.public" name="user_permissions" color="C1D8EE" x="512" y="224" />
+		<entity schema="smarmedsystems_logcial_db.public" name="user_role" color="C1D8EE" x="736" y="448" />
+		<entity schema="smarmedsystems_logcial_db.public" name="users" color="C1D8EE" x="512" y="416" />
 		<callout x="48" y="48" pointer="Round" >
 			<comment><![CDATA[This is a layout - a diagram with tools.
 - Create new entities by right-clicking the layout. 
