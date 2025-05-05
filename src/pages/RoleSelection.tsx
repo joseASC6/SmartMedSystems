@@ -24,32 +24,43 @@ function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
 
       const roleId = roleType === 'patient' ? 1 : 2;
 
-      // Create user_role entry
+    // Check if the role already exists for the user
+    const { data: existingRoles, error: fetchError } = await supabase
+      .from('user_role')
+      .select('role_id')
+      .eq('user_id', user.id);
+
+    if (fetchError) {
+      throw new Error('Failed to fetch existing roles');
+    }
+
+    // If the role doesn't exist, insert it
+    if (!existingRoles.some((role) => role.role_id === roleId)) {
       const { error: roleError } = await supabase
         .from('user_role')
         .insert({
           role_id: roleId,
           user_id: user.id,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
         });
 
-      if (roleError) throw roleError;
-
-      // Update auth context with role
-      login(user.id, roleType);
-      
-      // Update parent component state
-      onRoleSelect(roleType);
-      
-      // Navigate to appropriate data collection form
-      onNavigate(roleType === 'patient' ? 'patient-data' : 'staff-data');
-    } catch (err) {
-      console.error('Role selection error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to set user role');
-    } finally {
-      setIsLoading(false);
+      if (roleError) {
+        throw new Error('Failed to update user role');
+      }
     }
-  };
+
+    // Update the application state with the new role
+    onRoleSelect(roleType);
+
+    // Navigate to the appropriate data collection form
+    onNavigate(roleType === 'patient' ? 'patient-data' : 'staff-data');
+  } catch (err) {
+    console.error('Role selection error:', err);
+    setError(err instanceof Error ? err.message : 'Failed to set user role');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
