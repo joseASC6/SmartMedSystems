@@ -20,6 +20,7 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
   const genderOptions = [
     'Male',
     'Female',
+    'Non-binary',
     'Other',
     'Prefer not to say'
   ];

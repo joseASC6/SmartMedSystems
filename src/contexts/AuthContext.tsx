@@ -36,19 +36,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase
         .from('user_role')
         .select('role_id')
-        .eq('user_id', userId)
-        .maybeSingle();
-
+        .eq('user_id', userId);
+  
       if (error) {
         console.error('Error fetching user role:', error);
         return null;
       }
-
-      if (!data) {
-        return null;
+  
+      if (!data || data.length === 0) {
+        return null; // No roles found
       }
-
-      return data.role_id === 1 ? 'patient' : 'staff';
+  
+      // Check for staff roles
+      const isStaff = data.some((row) => row.role_id === 2 || (row.role_id >= 3 && row.role_id <= 8));
+      if (isStaff) {
+        return 'staff';
+      }
+  
+      // If no staff roles, check for patient role
+      const isPatient = data.some((row) => row.role_id === 1);
+      if (isPatient) {
+        return 'patient';
+      }
+  
+      return null; // No valid roles found
     } catch (error) {
       console.error('Error fetching user role:', error);
       return null;

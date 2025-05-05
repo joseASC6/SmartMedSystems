@@ -75,6 +75,12 @@ function Login({ onNavigate }: LoginProps) {
       ...prev,
       [name]: value
     }));
+    // Clear errors when user starts typing
+    setErrors(prev => ({
+      ...prev,
+      [name]: '',
+      submit: ''
+    }));
   };
 
   return (

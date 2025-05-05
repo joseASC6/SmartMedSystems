@@ -195,12 +195,6 @@ ALTER TABLE "public".staff ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public".time_slots ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS Policies
-CREATE POLICY "Allow signup"
-ON "public".users
-FOR INSERT
-TO anon
-WITH CHECK (true);
-
 CREATE POLICY "Users can insert own data"
 ON "public".users
 FOR INSERT
