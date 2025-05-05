@@ -102,20 +102,17 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
         .eq('email', formData.email)
         .single();
 
-      if (authError) {
-        if (authError.message === 'User already registered') {
-          setErrors(prev => ({
-            ...prev,
-            email: 'This email is already registered. Please use a different email or log in.',
-            submit: ''
-          }));
-          return;
-        }
-        throw authError;
+      if (existingUser) {
+        setErrors(prev => ({
+          ...prev,
+          email: 'This email is already registered. Please use a different email or log in.',
+          submit: ''
+        }));
+        return;
       }
 
       // Sign up with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: signupError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -127,7 +124,7 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
         }
       });
 
-      if (authError) throw authError;
+      if (signupError) throw signupError;
 
       if (!authData.user?.id) {
         throw new Error('User ID not found after signup');
