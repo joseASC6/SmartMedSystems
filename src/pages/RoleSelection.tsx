@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserCircle, Stethoscope } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 interface RoleSelectionProps {
   onNavigate: (page: string) => void;
@@ -8,25 +9,46 @@ interface RoleSelectionProps {
 }
 
 function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
-  const { login } = useAuth();
+  const { user, login } = useAuth();
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRoleSelect = (role: 'patient' | 'staff') => {
-    console.log('Selected role:', role);
-    
-    // Create a mock token for demonstration
-    const mockToken = 'mock-jwt-token';
-    
-    // Update auth context
-    login(mockToken, role);
-    
-    // Update parent component state
-    onRoleSelect(role);
-    
-    // Navigate to the appropriate data collection form
-    const targetPage = role === 'patient' ? 'patient-data' : 'staff-data';
-    console.log('Navigating to:', targetPage);
-    
-    onNavigate(targetPage);
+  const handleRoleSelect = async (roleType: 'patient' | 'staff') => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      if (!user?.id) {
+        throw new Error('User not found');
+      }
+
+      const roleId = roleType === 'patient' ? 1 : 2;
+
+      // Create user_role entry
+      const { error: roleError } = await supabase
+        .from('user_role')
+        .insert({
+          role_id: roleId,
+          user_id: user.id,
+          created_at: new Date().toISOString()
+        });
+
+      if (roleError) throw roleError;
+
+      // Update auth context with role
+      login(user.id, roleType);
+      
+      // Update parent component state
+      onRoleSelect(roleType);
+      
+      // Navigate to appropriate data collection form
+      onNavigate(roleType === 'patient' ? 'patient-data' : 'staff-data');
+    } catch (err) {
+      console.error('Role selection error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to set user role');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,12 +62,21 @@ function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
         </p>
       </div>
 
+      {error && (
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        </div>
+      )}
+
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <div className="space-y-6">
             <button
               onClick={() => handleRoleSelect('patient')}
-              className="w-full flex items-center justify-center px-8 py-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center px-8 py-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="text-center">
                 <UserCircle className="mx-auto h-12 w-12 text-blue-600" />
@@ -60,7 +91,8 @@ function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
 
             <button
               onClick={() => handleRoleSelect('staff')}
-              className="w-full flex items-center justify-center px-8 py-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center px-8 py-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="text-center">
                 <Stethoscope className="mx-auto h-12 w-12 text-blue-600" />

@@ -95,18 +95,12 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
     setErrors(prev => ({ ...prev, submit: '', email: '' }));
 
     try {
-      // First, sign up the user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            phone_number: formData.phone
-          }
-        }
-      });
+      // Check if email already exists
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', formData.email)
+        .single();
 
       if (authError) {
         if (authError.message === 'User already registered') {
@@ -120,11 +114,26 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
         throw authError;
       }
 
+      // Sign up with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone_number: formData.phone
+          }
+        }
+      });
+
+      if (authError) throw authError;
+
       if (!authData.user?.id) {
         throw new Error('User ID not found after signup');
       }
 
-      // Then, insert the user data into the public schema
+      // Insert user data into public schema
       const { error: userError } = await supabase
         .from('users')
         .insert({

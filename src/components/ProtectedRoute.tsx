@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'patient' | 'provider';
+  requiredRole?: 'patient' | 'staff';
   onNavigate: (page: string) => void;
 }
 
@@ -17,7 +17,7 @@ function ProtectedRoute({ children, requiredRole, onNavigate }: ProtectedRoutePr
     }
 
     if (requiredRole && userRole !== requiredRole) {
-      onNavigate(userRole === 'patient' ? 'patient-home' : 'provider-dashboard');
+      onNavigate(userRole === 'patient' ? 'patient-home' : 'staff-dashboard');
     }
   }, [isAuthenticated, userRole, requiredRole, onNavigate]);
 

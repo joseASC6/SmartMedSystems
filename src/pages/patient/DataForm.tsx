@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 interface PatientDataFormProps {
   onNavigate: (page: string) => void;
 }
 
 function PatientDataForm({ onNavigate }: PatientDataFormProps) {
-  const { userRole } = useAuth();
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     date_of_birth: '',
     gender: '',
@@ -17,7 +20,6 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
   const genderOptions = [
     'Male',
     'Female',
-    'Non-binary',
     'Other',
     'Prefer not to say'
   ];
@@ -26,15 +28,42 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
     'A+', 'A-',
     'B+', 'B-',
     'AB+', 'AB-',
-    'O+', 'O-',
-    'Unknown'
+    'O+', 'O-'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Patient data:', formData);
-    // Here we would normally save the data to the database
-    onNavigate('patient-home');
+    if (!user?.id) {
+      setError('User not found');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // Create patient entry
+      const patientId = crypto.randomUUID();
+      const { error: patientError } = await supabase
+        .from('patients')
+        .insert({
+          patient_id: patientId,
+          user_id: user.id,
+          date_of_birth: formData.date_of_birth,
+          gender: formData.gender,
+          blood_type: formData.blood_type,
+          insurance_provider: formData.insurance_provider || null
+        });
+
+      if (patientError) throw patientError;
+
+      onNavigate('patient-home');
+    } catch (err) {
+      console.error('Patient registration error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to complete registration');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -55,6 +84,12 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              {error}
+            </div>
+          )}
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700">
@@ -66,6 +101,7 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
                   name="date_of_birth"
                   id="date_of_birth"
                   required
+                  disabled={isLoading}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={formData.date_of_birth}
                   onChange={handleChange}
@@ -82,6 +118,7 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
                   name="gender"
                   id="gender"
                   required
+                  disabled={isLoading}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={formData.gender}
                   onChange={handleChange}
@@ -105,6 +142,7 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
                   name="blood_type"
                   id="blood_type"
                   required
+                  disabled={isLoading}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={formData.blood_type}
                   onChange={handleChange}
@@ -128,6 +166,7 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
                   type="text"
                   name="insurance_provider"
                   id="insurance_provider"
+                  disabled={isLoading}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={formData.insurance_provider}
                   onChange={handleChange}
@@ -138,9 +177,10 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                disabled={isLoading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Complete Profile
+                {isLoading ? 'Completing Profile...' : 'Complete Profile'}
               </button>
             </div>
           </form>
