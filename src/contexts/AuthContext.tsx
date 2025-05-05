@@ -1,20 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   userRole: 'patient' | 'staff' | null;
-  user: { id: string } | null;
-  login: (userId: string, role: 'patient' | 'staff') => void;
-  logout: () => void;
+  user: User | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   userRole: null,
   user: null,
-  login: () => {},
-  logout: () => {},
+  login: async () => {},
+  logout: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -22,72 +23,112 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<'patient' | 'staff' | null>(null);
-  const [user, setUser] = useState<{ id: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  const clearAuthState = () => {
+    setIsAuthenticated(false);
+    setUser(null);
+    setUserRole(null);
+  };
+
+  const fetchUserRole = async (userId: string): Promise<'patient' | 'staff' | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_role')
+        .select('role_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        return null;
+      }
+
+      if (!data) {
+        return null;
+      }
+
+      return data.role_id === 1 ? 'patient' : 'staff';
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+      return null;
+    }
+  };
 
   useEffect(() => {
-    // Check initial auth state
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setIsAuthenticated(true);
-        setUser({ id: session.user.id });
+    console.log('Setting up auth state...');
+    
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Initial session:', session);
         
-        // Check user role
-        const { data: roleData } = await supabase
-          .from('user_role')
-          .select('role_id')
-          .eq('user_id', session.user.id)
-          .single();
-
-        if (roleData) {
-          setUserRole(roleData.role_id === 1 ? 'patient' : 'staff');
+        if (session?.user) {
+          setIsAuthenticated(true);
+          setUser(session.user);
+          const role = await fetchUserRole(session.user.id);
+          console.log('User role:', role);
+          setUserRole(role);
+        } else {
+          console.log('No session found');
+          clearAuthState();
         }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        clearAuthState();
       }
     };
 
-    checkAuth();
+    initializeAuth();
 
-    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
+      console.log('Auth state changed:', event);
+      
+      if (session?.user) {
         setIsAuthenticated(true);
-        setUser({ id: session.user.id });
-        
-        // Check user role
-        const { data: roleData } = await supabase
-          .from('user_role')
-          .select('role_id')
-          .eq('user_id', session.user.id)
-          .single();
-
-        if (roleData) {
-          setUserRole(roleData.role_id === 1 ? 'patient' : 'staff');
-        }
-      } else if (event === 'SIGNED_OUT') {
-        setIsAuthenticated(false);
-        setUser(null);
-        setUserRole(null);
+        setUser(session.user);
+        const role = await fetchUserRole(session.user.id);
+        console.log('Updated user role:', role);
+        setUserRole(role);
+      } else {
+        clearAuthState();
       }
     });
 
     return () => {
+      console.log('Cleaning up auth subscriptions');
       subscription.unsubscribe();
     };
   }, []);
 
-  const login = (userId: string, role?: 'patient' | 'staff') => {
-    setIsAuthenticated(true);
-    setUser({ id: userId });
-    if (role) {
-      setUserRole(role);
+  const login = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw new Error('Invalid login credentials');
+      }
+
+      if (!data.user) {
+        throw new Error('No user returned from login');
+      }
+
+      // Role will be set by the auth state change listener
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setIsAuthenticated(false);
-    setUser(null);
-    setUserRole(null);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error during logout:', error);
+    }
+    clearAuthState();
   };
 
   return (
