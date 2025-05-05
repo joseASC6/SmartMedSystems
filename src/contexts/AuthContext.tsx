@@ -33,33 +33,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserRole = async (userId: string): Promise<'patient' | 'staff' | null> => {
     try {
-      const { data, error } = await supabase
-        .from('user_role')
-        .select('role_id')
-        .eq('user_id', userId);
+      let attempts = 0;
+      let data = null;
   
-      if (error) {
-        console.error('Error fetching user role:', error);
-        return null;
+      while (attempts < 3) {
+        const response = await supabase
+          .from('user_role')
+          .select('role_id')
+          .eq('user_id', userId);
+  
+        if (response.error) {
+          console.error('Error fetching user role:', response.error);
+          return null;
+        }
+  
+        data = response.data;
+        if (data && data.length > 0) break;
+  
+        attempts++;
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retrying
       }
   
       if (!data || data.length === 0) {
         return null; // No roles found
       }
   
-      // Check for staff roles
       const isStaff = data.some((row) => row.role_id === 2 || (row.role_id >= 3 && row.role_id <= 8));
-      if (isStaff) {
-        return 'staff';
-      }
+      if (isStaff) return 'staff';
   
-      // If no staff roles, check for patient role
       const isPatient = data.some((row) => row.role_id === 1);
-      if (isPatient) {
-        return 'patient';
-      }
+      if (isPatient) return 'patient';
   
-      return null; // No valid roles found
+      return null;
     } catch (error) {
       console.error('Error fetching user role:', error);
       return null;
