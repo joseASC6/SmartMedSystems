@@ -1,24 +1,28 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Activity } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LoginProps {
   onNavigate: (page: string) => void;
 }
 
 function Login({ onNavigate }: LoginProps) {
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [errors, setErrors] = useState({
     email: '',
-    password: ''
+    password: '',
+    submit: ''
   });
 
   const validateForm = () => {
     let isValid = true;
-    const newErrors = { email: '', password: '' };
+    const newErrors = { email: '', password: '', submit: '' };
 
     if (!formData.email) {
       newErrors.email = 'Email is required';
@@ -37,11 +41,31 @@ function Login({ onNavigate }: LoginProps) {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      // Handle login logic here
-      console.log('Form submitted:', formData);
+    console.log('Login form submitted');
+    
+    if (!validateForm()) {
+      console.log('Form validation failed');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrors(prev => ({ ...prev, submit: '' }));
+
+    try {
+      console.log('Attempting login with email:', formData.email);
+      await login(formData.email, formData.password);
+      console.log('Login successful, navigating to home');
+      onNavigate('home');
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrors(prev => ({
+        ...prev,
+        submit: error instanceof Error ? error.message : 'Invalid email or password'
+      }));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,6 +99,12 @@ function Login({ onNavigate }: LoginProps) {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {errors.submit && (
+            <div className="mb-4 bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              {errors.submit}
+            </div>
+          )}
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -87,6 +117,7 @@ function Login({ onNavigate }: LoginProps) {
                   type="email"
                   autoComplete="email"
                   required
+                  disabled={isLoading}
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.email ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
@@ -110,6 +141,7 @@ function Login({ onNavigate }: LoginProps) {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
+                  disabled={isLoading}
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.password ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
@@ -160,9 +192,10 @@ function Login({ onNavigate }: LoginProps) {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                disabled={isLoading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign in
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
           </form>

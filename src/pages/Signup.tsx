@@ -96,27 +96,22 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
 
     try {
       // Check if email already exists
-      const { data: existingUser, error: emailQueryError } = await supabase
+      const { data: existingUsers, error: emailQueryError } = await supabase
         .from('users')
         .select('email')
-        .eq('email', formData.email)
-        .single();
+        .eq('email', formData.email);
 
       if (emailQueryError) {
-        console.error('Error checking existing email:', emailQueryError);
-        setErrors(prev => ({
-          ...prev,
-          submit: 'An error occurred while checking the email. Please try again later.'
-        }));
-        return;
+        throw emailQueryError;
       }
 
-      if (existingUser) {
+      if (existingUsers && existingUsers.length > 0) {
         setErrors(prev => ({
           ...prev,
           email: 'This email is already registered. Please use a different email or log in.',
           submit: ''
         }));
+        setIsLoading(false);
         return;
       }
 
