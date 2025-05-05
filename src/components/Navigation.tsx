@@ -34,7 +34,7 @@ function Navigation({ onNavigate }: NavigationProps) {
 
     return (
       <>
-        <button onClick={() => handleNavigate('provider-dashboard')} className="text-gray-700 hover:text-blue-600">Dashboard</button>
+        <button onClick={() => handleNavigate('staff-dashboard')} className="text-gray-700 hover:text-blue-600">Dashboard</button>
         <button onClick={() => handleNavigate('patients')} className="text-gray-700 hover:text-blue-600">Patients</button>
         <button onClick={() => handleNavigate('schedule')} className="text-gray-700 hover:text-blue-600">Schedule</button>
         <button onClick={() => handleNavigate('profile')} className="text-gray-700 hover:text-blue-600">Profile</button>
@@ -133,7 +133,7 @@ function Navigation({ onNavigate }: NavigationProps) {
                   </>
                 ) : (
                   <>
-                    <button onClick={() => handleNavigate('provider-dashboard')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Dashboard</button>
+                    <button onClick={() => handleNavigate('staff-dashboard')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Dashboard</button>
                     <button onClick={() => handleNavigate('patients')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Patients</button>
                     <button onClick={() => handleNavigate('schedule')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Schedule</button>
                   </>
