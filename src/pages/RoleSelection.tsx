@@ -9,7 +9,7 @@ interface RoleSelectionProps {
 }
 
 function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
-  const { user, login } = useAuth();
+  const { user, refreshUserRole } = useAuth();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,8 +49,8 @@ function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
       }
     }
 
-    // Update the application state with the new role
-    onRoleSelect(roleType);
+    // Refresh the user's role in the AuthContext
+    await refreshUserRole();
 
     // Navigate to the appropriate data collection form
     onNavigate(roleType === 'patient' ? 'patient-data' : 'staff-data');

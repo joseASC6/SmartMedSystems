@@ -70,6 +70,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return null;
     }
   };
+  
+  const refreshUserRole = async () => {
+    if (!user?.id) return;
+  
+    const role = await fetchUserRole(user.id);
+    console.log('Refreshed user role:', role);
+    setUserRole(role);
+  };
 
   useEffect(() => {
     console.log('Setting up auth state...');
@@ -148,7 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userRole, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userRole, user, login, logout, refreshUserRole }}>
       {children}
     </AuthContext.Provider>
   );
