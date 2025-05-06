@@ -53,9 +53,17 @@ function Login() {
 
     try {
       console.log('Attempting login with email:', formData.email);
-      await login(formData.email, formData.password);
-      console.log('Login successful, navigating to home');
-      navigate('/');
+      const { userRole } = await login(formData.email, formData.password);
+      console.log('Login successful, user role:', userRole);
+      
+      // Route based on user role
+      if (!userRole) {
+        navigate('/role-selection');
+      } else if (userRole === 'patient') {
+        navigate('/patient-home');
+      } else if (userRole === 'staff') {
+        navigate('/staff-dashboard');
+      }
     } catch (error) {
       console.error('Login error:', error);
       setErrors(prev => ({
