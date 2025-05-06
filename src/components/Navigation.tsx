@@ -1,43 +1,37 @@
 import React, { useState } from 'react';
 import { Menu, X, Activity } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
-interface NavigationProps {
-  onNavigate: (page: string) => void;
-}
-
-function Navigation({ onNavigate }: NavigationProps) {
+function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isAuthenticated, userRole, logout } = useAuth();
+  const navigate = useNavigate();
 
-  const handleNavigate = (page: string) => {
-    onNavigate(page);
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
     setIsMenuOpen(false);
-  };
-
-  const handleLogout = () => {
-    logout();
-    handleNavigate('home');
   };
 
   const renderAuthenticatedNav = () => {
     if (userRole === 'patient') {
       return (
         <>
-          <button onClick={() => handleNavigate('patient-home')} className="text-gray-700 hover:text-blue-600">Home</button>
-          <button onClick={() => handleNavigate('appointments')} className="text-gray-700 hover:text-blue-600">Appointments</button>
-          <button onClick={() => handleNavigate('chat')} className="text-gray-700 hover:text-blue-600">Chat</button>
-          <button onClick={() => handleNavigate('profile')} className="text-gray-700 hover:text-blue-600">Profile</button>
+          <Link to="/patient-home" className="text-gray-700 hover:text-blue-600">Home</Link>
+          <Link to="/appointments" className="text-gray-700 hover:text-blue-600">Appointments</Link>
+          <Link to="/chat" className="text-gray-700 hover:text-blue-600">Chat</Link>
+          <Link to="/profile" className="text-gray-700 hover:text-blue-600">Profile</Link>
         </>
       );
     }
 
     return (
       <>
-        <button onClick={() => handleNavigate('staff-dashboard')} className="text-gray-700 hover:text-blue-600">Dashboard</button>
-        <button onClick={() => handleNavigate('patients')} className="text-gray-700 hover:text-blue-600">Patients</button>
-        <button onClick={() => handleNavigate('schedule')} className="text-gray-700 hover:text-blue-600">Schedule</button>
-        <button onClick={() => handleNavigate('profile')} className="text-gray-700 hover:text-blue-600">Profile</button>
+        <Link to="/staff-dashboard" className="text-gray-700 hover:text-blue-600">Dashboard</Link>
+        <Link to="/patients" className="text-gray-700 hover:text-blue-600">Patients</Link>
+        <Link to="/schedule" className="text-gray-700 hover:text-blue-600">Schedule</Link>
+        <Link to="/profile" className="text-gray-700 hover:text-blue-600">Profile</Link>
       </>
     );
   };
@@ -56,18 +50,18 @@ function Navigation({ onNavigate }: NavigationProps) {
 
     return (
       <>
-        <button
-          onClick={() => handleNavigate('login')}
+        <Link
+          to="/login"
           className="bg-gray-100 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-200"
         >
           Log In
-        </button>
-        <button
-          onClick={() => handleNavigate('signup')}
+        </Link>
+        <Link
+          to="/signup"
           className="bg-blue-600 px-4 py-2 rounded-lg text-white hover:bg-blue-700"
         >
           Sign Up
-        </button>
+        </Link>
       </>
     );
   };
@@ -77,16 +71,18 @@ function Navigation({ onNavigate }: NavigationProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Activity className="h-8 w-8 text-blue-600" />
-            <span className="ml-2 text-xl font-bold text-gray-900">SmartMed Systems</span>
+            <Link to="/" className="flex items-center">
+              <Activity className="h-8 w-8 text-blue-600" />
+              <span className="ml-2 text-xl font-bold text-gray-900">SmartMed Systems</span>
+            </Link>
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
             {!isAuthenticated && (
               <>
-                <button onClick={() => handleNavigate('home')} className="text-gray-700 hover:text-blue-600">Home</button>
-                <button onClick={() => handleNavigate('about')} className="text-gray-700 hover:text-blue-600">About Us</button>
-                <button onClick={() => handleNavigate('how-it-works')} className="text-gray-700 hover:text-blue-600">How It Works</button>
+                <Link to="/" className="text-gray-700 hover:text-blue-600">Home</Link>
+                <Link to="/about" className="text-gray-700 hover:text-blue-600">About Us</Link>
+                <Link to="/how-it-works" className="text-gray-700 hover:text-blue-600">How It Works</Link>
               </>
             )}
             {isAuthenticated && renderAuthenticatedNav()}
@@ -107,38 +103,38 @@ function Navigation({ onNavigate }: NavigationProps) {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {!isAuthenticated ? (
               <>
-                <button onClick={() => handleNavigate('home')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Home</button>
-                <button onClick={() => handleNavigate('about')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">About Us</button>
-                <button onClick={() => handleNavigate('how-it-works')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">How It Works</button>
-                <button
-                  onClick={() => handleNavigate('login')}
+                <Link to="/" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Home</Link>
+                <Link to="/about" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">About Us</Link>
+                <Link to="/how-it-works" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">How It Works</Link>
+                <Link
+                  to="/login"
                   className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
                 >
                   Log In
-                </button>
-                <button
-                  onClick={() => handleNavigate('signup')}
+                </Link>
+                <Link
+                  to="/signup"
                   className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
                 >
                   Sign Up
-                </button>
+                </Link>
               </>
             ) : (
               <>
                 {userRole === 'patient' ? (
                   <>
-                    <button onClick={() => handleNavigate('patient-home')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Home</button>
-                    <button onClick={() => handleNavigate('appointments')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Appointments</button>
-                    <button onClick={() => handleNavigate('chat')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Chat</button>
+                    <Link to="/patient-home" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Home</Link>
+                    <Link to="/appointments" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Appointments</Link>
+                    <Link to="/chat" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Chat</Link>
                   </>
                 ) : (
                   <>
-                    <button onClick={() => handleNavigate('staff-dashboard')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Dashboard</button>
-                    <button onClick={() => handleNavigate('patients')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Patients</button>
-                    <button onClick={() => handleNavigate('schedule')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Schedule</button>
+                    <Link to="/staff-dashboard" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Dashboard</Link>
+                    <Link to="/patients" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Patients</Link>
+                    <Link to="/schedule" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Schedule</Link>
                   </>
                 )}
-                <button onClick={() => handleNavigate('profile')} className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Profile</button>
+                <Link to="/profile" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Profile</Link>
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"

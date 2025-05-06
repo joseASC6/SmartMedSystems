@@ -1,7 +1,10 @@
 import React from 'react';
 import { Users, Calendar, MessageSquare, Activity } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const StaffDashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Staff Dashboard</h1>
@@ -19,7 +22,10 @@ const StaffDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div 
+          className="bg-white rounded-lg shadow p-6 cursor-pointer hover:bg-gray-50"
+          onClick={() => navigate('/schedule')}
+        >
           <div className="flex items-center">
             <div className="p-3 bg-green-100 rounded-full">
               <Calendar className="h-6 w-6 text-green-600" />

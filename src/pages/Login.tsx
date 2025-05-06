@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Activity } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-interface LoginProps {
-  onNavigate: (page: string) => void;
-}
-
-function Login({ onNavigate }: LoginProps) {
+function Login() {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +55,7 @@ function Login({ onNavigate }: LoginProps) {
       console.log('Attempting login with email:', formData.email);
       await login(formData.email, formData.password);
       console.log('Login successful, navigating to home');
-      onNavigate('home');
+      navigate('/');
     } catch (error) {
       console.error('Login error:', error);
       setErrors(prev => ({
@@ -95,7 +93,7 @@ function Login({ onNavigate }: LoginProps) {
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
           <button
-            onClick={() => onNavigate('signup')}
+            onClick={() => navigate('/signup')}
             className="font-medium text-blue-600 hover:text-blue-500"
           >
             create a new account
@@ -187,7 +185,7 @@ function Login({ onNavigate }: LoginProps) {
               <div className="text-sm">
                 <button
                   type="button"
-                  onClick={() => onNavigate('forgot-password')}
+                  onClick={() => navigate('/forgot-password')}
                   className="font-medium text-blue-600 hover:text-blue-500"
                 >
                   Forgot your password?
