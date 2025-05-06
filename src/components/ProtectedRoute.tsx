@@ -1,31 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: 'patient' | 'staff';
-  onNavigate: (page: string) => void;
 }
 
-function ProtectedRoute({ children, requiredRole, onNavigate }: ProtectedRouteProps) {
-  const { isAuthenticated, userRole } = useAuth();
+function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+  const { isAuthenticated, userRole, refreshUserRole } = useAuth();
+  const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      onNavigate('login');
-      return;
-    }
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (!isAuthenticated) {
+        navigate('/login');
+        return;
+      }
 
-    if (requiredRole && userRole !== requiredRole) {
-      onNavigate(userRole === 'patient' ? 'patient-home' : 'staff-dashboard');
-    }
-  }, [isAuthenticated, userRole, requiredRole, onNavigate]);
+      if (!userRole) {
+        await refreshUserRole();
+      }
 
-  if (!isAuthenticated) {
-    return null;
-  }
+      if (requiredRole && userRole !== requiredRole) {
+        navigate(userRole === 'patient' ? '/patient-home' : '/staff-dashboard');
+      }
+    };
 
-  if (requiredRole && userRole !== requiredRole) {
+    checkAuth();
+  }, [isAuthenticated, userRole, requiredRole, navigate, refreshUserRole]);
+
+  if (!isAuthenticated || (requiredRole && userRole !== requiredRole)) {
     return null;
   }
 

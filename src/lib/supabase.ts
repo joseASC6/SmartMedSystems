@@ -18,9 +18,9 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: true,
     storageKey: 'auth.token',
-    flowType: 'pkce'
+    flowType: 'pkce',
+    storage: window.localStorage
   }
 });
 
-// Export typed helpers
 export type { User } from '@supabase/supabase-js';
