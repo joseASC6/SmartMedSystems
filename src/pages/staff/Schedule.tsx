@@ -23,6 +23,22 @@ interface WeeklySchedule {
   };
 }
 
+const generateTimeOptions = () => {
+  const times = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 15) {
+      const formattedHour = hour.toString().padStart(2, '0');
+      const formattedMinute = minute.toString().padStart(2, '0');
+      const time = `${formattedHour}:${formattedMinute}`;
+      const label = format(new Date(2024, 0, 1, hour, minute), 'h:mm a');
+      times.push({ value: time, label });
+    }
+  }
+  return times;
+};
+
+const TIME_OPTIONS = generateTimeOptions();
+
 const Schedule: React.FC = () => {
   const { user } = useAuth();
   const [view, setView] = useState<'list' | 'calendar'>('list');
@@ -56,7 +72,6 @@ const Schedule: React.FC = () => {
 
       if (staffError) throw staffError;
 
-      // Fetch weekly schedules
       const { data: weeklyData, error: weeklyError } = await supabase
         .from('schedules')
         .select('*')
@@ -65,7 +80,6 @@ const Schedule: React.FC = () => {
 
       if (weeklyError) throw weeklyError;
 
-      // Fetch specific date schedules
       const { data: specificData, error: specificError } = await supabase
         .from('schedules')
         .select('*')
@@ -74,8 +88,7 @@ const Schedule: React.FC = () => {
 
       if (specificError) throw specificError;
 
-      // Process and set the schedules
-      // ... (implementation needed)
+      // Process schedules...
     } catch (error) {
       console.error('Error fetching schedules:', error);
       setError('Failed to load schedules');
@@ -145,7 +158,6 @@ const Schedule: React.FC = () => {
 
       if (staffError) throw staffError;
 
-      // Save weekly schedule
       for (const [day, schedule] of Object.entries(weeklySchedule)) {
         if (schedule.isAvailable) {
           for (const slot of schedule.timeSlots) {
@@ -163,14 +175,58 @@ const Schedule: React.FC = () => {
         }
       }
 
-      // Save specific dates
-      // ... (implementation needed)
-
       fetchSchedules();
     } catch (error) {
       console.error('Error saving schedule:', error);
       setError('Failed to save schedule');
     }
+  };
+
+  const TimeSelect = ({ value, onChange, className = '' }: { 
+    value: string; 
+    onChange: (value: string) => void;
+    className?: string;
+  }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const selectedOption = TIME_OPTIONS.find(option => option.value === value);
+
+    return (
+      <div className="relative w-36">
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className={`w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${className}`}
+        >
+          <span className="truncate">{selectedOption?.label || 'Select time'}</span>
+          <ChevronDown className="h-4 w-4 ml-2 text-gray-400" />
+        </button>
+
+        {isOpen && (
+          <>
+            <div 
+              className="fixed inset-0" 
+              onClick={() => setIsOpen(false)}
+            />
+            <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+              {TIME_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  className={`w-full text-left px-3 py-2 hover:bg-blue-50 ${
+                    value === option.value ? 'bg-blue-50 text-blue-700' : 'text-gray-900'
+                  }`}
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -206,7 +262,6 @@ const Schedule: React.FC = () => {
       )}
 
       <div className="space-y-8">
-        {/* Weekly Hours Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Weekly Hours</h2>
           <p className="text-gray-600 mb-6">Set when you are typically available for meetings</p>
@@ -252,18 +307,14 @@ const Schedule: React.FC = () => {
 
                   {schedule.timeSlots.map((slot, index) => (
                     <div key={index} className="flex items-center space-x-4">
-                      <input
-                        type="time"
+                      <TimeSelect
                         value={slot.start}
-                        onChange={(e) => handleWeeklyTimeSlotChange(day, index, 'start', e.target.value)}
-                        className="block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        onChange={(value) => handleWeeklyTimeSlotChange(day, index, 'start', value)}
                       />
                       <span>to</span>
-                      <input
-                        type="time"
+                      <TimeSelect
                         value={slot.end}
-                        onChange={(e) => handleWeeklyTimeSlotChange(day, index, 'end', e.target.value)}
-                        className="block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        onChange={(value) => handleWeeklyTimeSlotChange(day, index, 'end', value)}
                       />
                       <button
                         onClick={() => handleRemoveWeeklyTimeSlot(day, index)}
@@ -279,7 +330,6 @@ const Schedule: React.FC = () => {
           ))}
         </div>
 
-        {/* Date-specific Hours Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Date-specific Hours</h2>
           <p className="text-gray-600 mb-6">Adjust hours for specific days</p>
@@ -292,12 +342,10 @@ const Schedule: React.FC = () => {
             Select Dates
           </button>
 
-          {/* Calendar Modal */}
           {showCalendar && (
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
               <div className="bg-white rounded-lg p-6 max-w-lg w-full">
                 <h3 className="text-lg font-medium mb-4">Select Dates</h3>
-                {/* Calendar implementation needed */}
                 <div className="flex justify-end space-x-4 mt-4">
                   <button
                     onClick={() => setShowCalendar(false)}
@@ -308,7 +356,6 @@ const Schedule: React.FC = () => {
                   <button
                     onClick={() => {
                       setShowCalendar(false);
-                      // Handle selected dates
                     }}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
@@ -319,7 +366,6 @@ const Schedule: React.FC = () => {
             </div>
           )}
 
-          {/* Selected Dates */}
           {selectedDates.map((date) => (
             <div key={date} className="mb-6 border-b pb-6">
               {/* Date-specific time slots UI */}
