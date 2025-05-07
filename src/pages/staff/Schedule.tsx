@@ -2,17 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, List, Plus, X, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { format, startOfWeek, addDays } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 interface TimeSlot {
   start: string;
   end: string;
-}
-
-interface DaySchedule {
-  date: string;
-  timeSlots: TimeSlot[];
-  duration: number;
 }
 
 interface WeeklySchedule {
@@ -21,6 +15,12 @@ interface WeeklySchedule {
     timeSlots: TimeSlot[];
     duration: number;
   };
+}
+
+interface DateSpecificSchedule {
+  date: string;
+  timeSlots: TimeSlot[];
+  duration: number;
 }
 
 const generateTimeOptions = () => {
@@ -42,6 +42,7 @@ const TIME_OPTIONS = generateTimeOptions();
 const Schedule: React.FC = () => {
   const { user } = useAuth();
   const [view, setView] = useState<'list' | 'calendar'>('list');
+  const [staffId, setStaffId] = useState<string | null>(null);
   const [weeklySchedule, setWeeklySchedule] = useState<WeeklySchedule>({
     Sunday: { isAvailable: false, timeSlots: [], duration: 30 },
     Monday: { isAvailable: false, timeSlots: [], duration: 30 },
@@ -51,44 +52,112 @@ const Schedule: React.FC = () => {
     Friday: { isAvailable: false, timeSlots: [], duration: 30 },
     Saturday: { isAvailable: false, timeSlots: [], duration: 30 },
   });
-  const [specificDates, setSpecificDates] = useState<DaySchedule[]>([]);
+  const [dateSpecificSchedules, setDateSpecificSchedules] = useState<DateSpecificSchedule[]>([]);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [error, setError] = useState('');
+  const [selectedDate, setSelectedDate] = useState<string>('');
 
   useEffect(() => {
     if (user) {
-      fetchSchedules();
+      fetchStaffId();
     }
   }, [user]);
 
-  const fetchSchedules = async () => {
+  useEffect(() => {
+    if (staffId) {
+      fetchSchedules();
+    }
+  }, [staffId]);
+
+  const fetchStaffId = async () => {
     try {
-      const { data: staffData, error: staffError } = await supabase
+      const { data, error } = await supabase
         .from('staff')
         .select('staff_id')
         .eq('user_id', user?.id)
+        .limit(1)
         .single();
 
-      if (staffError) throw staffError;
+      if (error) {
+        if (error.message.includes('no rows')) {
+          setError('No staff record found. Please complete your staff profile first.');
+          return;
+        }
+        throw error;
+      }
 
+      if (data) {
+        setStaffId(data.staff_id);
+      }
+    } catch (error) {
+      console.error('Error fetching staff ID:', error);
+      setError('Failed to fetch staff information');
+    }
+  };
+
+  const fetchSchedules = async () => {
+    try {
+      if (!staffId) return;
+
+      // Fetch weekly schedules
       const { data: weeklyData, error: weeklyError } = await supabase
         .from('schedules')
         .select('*')
-        .eq('staff_id', staffData.staff_id)
+        .eq('staff_id', staffId)
         .eq('is_weekly', true);
 
       if (weeklyError) throw weeklyError;
 
-      const { data: specificData, error: specificError } = await supabase
+      // Update weekly schedule state
+      if (weeklyData) {
+        const updatedWeeklySchedule = { ...weeklySchedule };
+        weeklyData.forEach(schedule => {
+          if (schedule.day_of_week) {
+            const timeSlots = schedule.time_rangez.reduce((acc: TimeSlot[], time: string, index: number, arr: string[]) => {
+              if (index % 2 === 0) {
+                acc.push({
+                  start: format(parseISO(time), 'HH:mm'),
+                  end: format(parseISO(arr[index + 1] || time), 'HH:mm')
+                });
+              }
+              return acc;
+            }, []);
+
+            updatedWeeklySchedule[schedule.day_of_week] = {
+              isAvailable: true,
+              timeSlots,
+              duration: schedule.slot_duration
+            };
+          }
+        });
+        setWeeklySchedule(updatedWeeklySchedule);
+      }
+
+      // Fetch date-specific schedules
+      const { data: dateData, error: dateError } = await supabase
         .from('schedules')
         .select('*')
-        .eq('staff_id', staffData.staff_id)
+        .eq('staff_id', staffId)
         .eq('is_weekly', false);
 
-      if (specificError) throw specificError;
+      if (dateError) throw dateError;
 
-      // Process schedules...
+      if (dateData) {
+        const dateSchedules = dateData.map(schedule => ({
+          date: schedule.date,
+          timeSlots: schedule.time_rangez.reduce((acc: TimeSlot[], time: string, index: number, arr: string[]) => {
+            if (index % 2 === 0) {
+              acc.push({
+                start: format(parseISO(time), 'HH:mm'),
+                end: format(parseISO(arr[index + 1] || time), 'HH:mm')
+              });
+            }
+            return acc;
+          }, []),
+          duration: schedule.slot_duration
+        }));
+        setDateSpecificSchedules(dateSchedules);
+      }
     } catch (error) {
       console.error('Error fetching schedules:', error);
       setError('Failed to load schedules');
@@ -148,34 +217,139 @@ const Schedule: React.FC = () => {
     }));
   };
 
+  const handleAddDateSpecificSchedule = () => {
+    if (!selectedDate) return;
+
+    setDateSpecificSchedules(prev => [
+      ...prev,
+      {
+        date: selectedDate,
+        timeSlots: [{ start: '09:00', end: '17:00' }],
+        duration: 30
+      }
+    ]);
+    setSelectedDate('');
+    setShowCalendar(false);
+  };
+
+  const handleDateSpecificTimeSlotChange = (date: string, index: number, field: 'start' | 'end', value: string) => {
+    setDateSpecificSchedules(prev => prev.map(schedule => {
+      if (schedule.date === date) {
+        return {
+          ...schedule,
+          timeSlots: schedule.timeSlots.map((slot, i) => 
+            i === index ? { ...slot, [field]: value } : slot
+          )
+        };
+      }
+      return schedule;
+    }));
+  };
+
+  const handleAddDateSpecificTimeSlot = (date: string) => {
+    setDateSpecificSchedules(prev => prev.map(schedule => {
+      if (schedule.date === date) {
+        return {
+          ...schedule,
+          timeSlots: [...schedule.timeSlots, { start: '09:00', end: '17:00' }]
+        };
+      }
+      return schedule;
+    }));
+  };
+
+  const handleRemoveDateSpecificTimeSlot = (date: string, index: number) => {
+    setDateSpecificSchedules(prev => prev.map(schedule => {
+      if (schedule.date === date) {
+        return {
+          ...schedule,
+          timeSlots: schedule.timeSlots.filter((_, i) => i !== index)
+        };
+      }
+      return schedule;
+    }));
+  };
+
+  const handleRemoveDateSpecificSchedule = (date: string) => {
+    setDateSpecificSchedules(prev => prev.filter(schedule => schedule.date !== date));
+  };
+
+  const handleDateSpecificDurationChange = (date: string, duration: number) => {
+    setDateSpecificSchedules(prev => prev.map(schedule => {
+      if (schedule.date === date) {
+        return {
+          ...schedule,
+          duration
+        };
+      }
+      return schedule;
+    }));
+  };
+
   const handleSaveSchedule = async () => {
     try {
-      const { data: staffData, error: staffError } = await supabase
-        .from('staff')
-        .select('staff_id')
-        .eq('user_id', user?.id)
-        .single();
+      if (!staffId) throw new Error('Staff ID not found');
 
-      if (staffError) throw staffError;
+      // Delete existing schedules
+      await supabase
+        .from('schedules')
+        .delete()
+        .eq('staff_id', staffId);
 
+      // Save weekly schedules
       for (const [day, schedule] of Object.entries(weeklySchedule)) {
-        if (schedule.isAvailable) {
-          for (const slot of schedule.timeSlots) {
-            await supabase
-              .from('schedules')
-              .insert({
-                staff_id: staffData.staff_id,
-                is_weekly: true,
-                day_of_week: day,
-                start_time: slot.start,
-                end_time: slot.end,
-                slot_duration: schedule.duration
-              });
-          }
+        if (schedule.isAvailable && schedule.timeSlots.length > 0) {
+          const timeRangez = schedule.timeSlots.flatMap(slot => {
+            const startDate = new Date();
+            const [startHour, startMinute] = slot.start.split(':');
+            startDate.setHours(parseInt(startHour), parseInt(startMinute), 0, 0);
+
+            const endDate = new Date();
+            const [endHour, endMinute] = slot.end.split(':');
+            endDate.setHours(parseInt(endHour), parseInt(endMinute), 0, 0);
+
+            return [startDate.toISOString(), endDate.toISOString()];
+          });
+
+          await supabase
+            .from('schedules')
+            .insert({
+              staff_id: staffId,
+              is_weekly: true,
+              day_of_week: day,
+              time_rangez: timeRangez,
+              slot_duration: schedule.duration
+            });
         }
       }
 
-      fetchSchedules();
+      // Save date-specific schedules
+      for (const schedule of dateSpecificSchedules) {
+        const timeRangez = schedule.timeSlots.flatMap(slot => {
+          const [startHour, startMinute] = slot.start.split(':');
+          const [endHour, endMinute] = slot.end.split(':');
+
+          const startDate = new Date(schedule.date);
+          startDate.setHours(parseInt(startHour), parseInt(startMinute), 0, 0);
+
+          const endDate = new Date(schedule.date);
+          endDate.setHours(parseInt(endHour), parseInt(endMinute), 0, 0);
+
+          return [startDate.toISOString(), endDate.toISOString()];
+        });
+
+        await supabase
+          .from('schedules')
+          .insert({
+            staff_id: staffId,
+            is_weekly: false,
+            date: schedule.date,
+            time_rangez: timeRangez,
+            slot_duration: schedule.duration
+          });
+      }
+
+      await fetchSchedules();
     } catch (error) {
       console.error('Error saving schedule:', error);
       setError('Failed to save schedule');
@@ -262,6 +436,7 @@ const Schedule: React.FC = () => {
       )}
 
       <div className="space-y-8">
+        {/* Weekly Hours Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Weekly Hours</h2>
           <p className="text-gray-600 mb-6">Set when you are typically available for meetings</p>
@@ -330,45 +505,83 @@ const Schedule: React.FC = () => {
           ))}
         </div>
 
+        {/* Date-specific Hours Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Date-specific Hours</h2>
           <p className="text-gray-600 mb-6">Adjust hours for specific days</p>
 
-          <button
-            onClick={() => setShowCalendar(true)}
-            className="mb-4 flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-          >
-            <CalendarIcon className="w-5 h-5 mr-2" />
-            Select Dates
-          </button>
+          <div className="flex items-center space-x-4 mb-6">
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+            <button
+              onClick={handleAddDateSpecificSchedule}
+              disabled={!selectedDate}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Add Date Schedule
+            </button>
+          </div>
 
-          {showCalendar && (
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-              <div className="bg-white rounded-lg p-6 max-w-lg w-full">
-                <h3 className="text-lg font-medium mb-4">Select Dates</h3>
-                <div className="flex justify-end space-x-4 mt-4">
+          {dateSpecificSchedules.map((schedule) => (
+            <div key={schedule.date} className="mb-6 border-b pb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium">
+                  {format(parseISO(schedule.date), 'MMMM d, yyyy')}
+                </h3>
+                <div className="flex items-center space-x-4">
                   <button
-                    onClick={() => setShowCalendar(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    onClick={() => handleAddDateSpecificTimeSlot(schedule.date)}
+                    className="text-blue-600 hover:text-blue-800 flex items-center"
                   >
-                    Cancel
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Time Slot
                   </button>
                   <button
-                    onClick={() => {
-                      setShowCalendar(false);
-                    }}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    onClick={() => handleRemoveDateSpecificSchedule(schedule.date)}
+                    className="text-red-600 hover:text-red-800"
                   >
-                    Confirm
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
               </div>
-            </div>
-          )}
 
-          {selectedDates.map((date) => (
-            <div key={date} className="mb-6 border-b pb-6">
-              {/* Date-specific time slots UI */}
+              <div className="flex items-center space-x-4 mb-4">
+                <span className="text-sm font-medium text-gray-700">Duration:</span>
+                <select
+                  value={schedule.duration}
+                  onChange={(e) => handleDateSpecificDurationChange(schedule.date, parseInt(e.target.value))}
+                  className="block w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value={15}>15 minutes</option>
+                  <option value={30}>30 minutes</option>
+                  <option value={45}>45 minutes</option>
+                  <option value={60}>1 hour</option>
+                </select>
+              </div>
+
+              {schedule.timeSlots.map((slot, index) => (
+                <div key={index} className="flex items-center space-x-4 mb-4">
+                  <TimeSelect
+                    value={slot.start}
+                    onChange={(value) => handleDateSpecificTimeSlotChange(schedule.date, index, 'start', value)}
+                  />
+                  <span>to</span>
+                  <TimeSelect
+                    value={slot.end}
+                    onChange={(value) => handleDateSpecificTimeSlotChange(schedule.date, index, 'end', value)}
+                  />
+                  <button
+                    onClick={() => handleRemoveDateSpecificTimeSlot(schedule.date, index)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              ))}
             </div>
           ))}
         </div>
