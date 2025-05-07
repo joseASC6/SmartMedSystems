@@ -12,6 +12,7 @@ import StaffDataForm from './pages/staff/DataForm';
 import Schedule from './pages/staff/Schedule';
 import Appointments from './pages/Appointments';
 import Chat from './pages/Chat';
+import Profile from './pages/Profile';
 
 // Lazy load the dashboards for better performance
 const PatientHome = React.lazy(() => import('./pages/patient/Home.tsx'));
@@ -70,6 +71,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Chat />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />
