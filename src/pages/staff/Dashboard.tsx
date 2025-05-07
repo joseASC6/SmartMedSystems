@@ -1,9 +1,36 @@
 import React from 'react';
-import { Users, Calendar, MessageSquare, Activity } from 'lucide-react';
+import { Users, Calendar, MessageSquare, Activity, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const StaffDashboard = () => {
   const navigate = useNavigate();
+
+  const quickActions = [
+    {
+      title: 'Live Chat',
+      icon: <MessageSquare className="h-6 w-6 text-blue-600" />,
+      description: 'Chat with patients and colleagues',
+      path: '/chat'
+    },
+    {
+      title: 'Appointments',
+      icon: <Calendar className="h-6 w-6 text-green-600" />,
+      description: 'View and manage appointments',
+      path: '/appointments'
+    },
+    {
+      title: 'Schedule',
+      icon: <Clock className="h-6 w-6 text-purple-600" />,
+      description: 'Manage your availability',
+      path: '/schedule'
+    },
+    {
+      title: 'Profile',
+      icon: <Users className="h-6 w-6 text-orange-600" />,
+      description: 'Update your information',
+      path: '/profile'
+    }
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -22,16 +49,13 @@ const StaffDashboard = () => {
           </div>
         </div>
 
-        <div 
-          className="bg-white rounded-lg shadow p-6 cursor-pointer hover:bg-gray-50"
-          onClick={() => navigate('/schedule')}
-        >
+        <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
             <div className="p-3 bg-green-100 rounded-full">
               <Calendar className="h-6 w-6 text-green-600" />
             </div>
             <div className="ml-4">
-              <h2 className="text-sm font-medium text-gray-500">Appointments Today</h2>
+              <h2 className="text-sm font-medium text-gray-500">Today's Appointments</h2>
               <p className="text-2xl font-semibold text-gray-900">12</p>
             </div>
           </div>
@@ -43,7 +67,7 @@ const StaffDashboard = () => {
               <MessageSquare className="h-6 w-6 text-yellow-600" />
             </div>
             <div className="ml-4">
-              <h2 className="text-sm font-medium text-gray-500">Pending Messages</h2>
+              <h2 className="text-sm font-medium text-gray-500">Unread Messages</h2>
               <p className="text-2xl font-semibold text-gray-900">5</p>
             </div>
           </div>
@@ -62,9 +86,27 @@ const StaffDashboard = () => {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {quickActions.map((action, index) => (
+          <button
+            key={index}
+            onClick={() => navigate(action.path)}
+            className="bg-white rounded-lg shadow p-6 hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="p-3 bg-gray-100 rounded-full mb-4">
+                {action.icon}
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">{action.title}</h3>
+              <p className="text-sm text-gray-500">{action.description}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Today's Appointments</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Today's Schedule</h2>
         </div>
         <div className="p-6">
           <div className="overflow-x-auto">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Activity } from 'lucide-react';
+import { Menu, X, Activity, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -29,7 +29,8 @@ function Navigation() {
     return (
       <>
         <Link to="/staff-dashboard" className="text-gray-700 hover:text-blue-600">Dashboard</Link>
-        <Link to="/patients" className="text-gray-700 hover:text-blue-600">Patients</Link>
+        <Link to="/chat" className="text-gray-700 hover:text-blue-600">Chat</Link>
+        <Link to="/appointments" className="text-gray-700 hover:text-blue-600">Appointments</Link>
         <Link to="/schedule" className="text-gray-700 hover:text-blue-600">Schedule</Link>
         <Link to="/profile" className="text-gray-700 hover:text-blue-600">Profile</Link>
       </>
@@ -130,7 +131,8 @@ function Navigation() {
                 ) : (
                   <>
                     <Link to="/staff-dashboard" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Dashboard</Link>
-                    <Link to="/patients" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Patients</Link>
+                    <Link to="/chat" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Chat</Link>
+                    <Link to="/appointments" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Appointments</Link>
                     <Link to="/schedule" className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Schedule</Link>
                   </>
                 )}

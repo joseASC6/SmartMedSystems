@@ -10,6 +10,7 @@ import RoleSelection from './pages/RoleSelection';
 import PatientDataForm from './pages/patient/DataForm';
 import StaffDataForm from './pages/staff/DataForm';
 import Schedule from './pages/staff/Schedule';
+import Appointments from './pages/Appointments';
 
 // Lazy load the dashboards for better performance
 const PatientHome = React.lazy(() => import('./pages/patient/Home.tsx'));
@@ -52,6 +53,14 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="staff">
                   <Schedule />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/appointments"
+              element={
+                <ProtectedRoute>
+                  <Appointments />
                 </ProtectedRoute>
               }
             />
