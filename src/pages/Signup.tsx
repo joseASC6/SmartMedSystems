@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Activity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 interface SignupProps {
-  onNavigate: (page: string) => void;
   onSignupSuccess: () => void;
 }
 
-function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
+function Signup({ onSignupSuccess }: SignupProps) {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -190,7 +191,7 @@ function Signup({ onNavigate, onSignupSuccess }: SignupProps) {
         <p className="mt-2 text-center text-sm text-gray-600">
           Already have an account?{' '}
           <button
-            onClick={() => onNavigate('login')}
+            onClick={() => navigate('/login')}
             className="font-medium text-blue-600 hover:text-blue-500"
           >
             Sign in

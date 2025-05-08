@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
-interface PatientDataFormProps {
-  onNavigate: (page: string) => void;
-}
-
-function PatientDataForm({ onNavigate }: PatientDataFormProps) {
+function PatientDataForm() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -58,7 +56,7 @@ function PatientDataForm({ onNavigate }: PatientDataFormProps) {
 
       if (patientError) throw patientError;
 
-      onNavigate('patient-home');
+      navigate('/patient-home');
     } catch (err) {
       console.error('Patient registration error:', err);
       setError(err instanceof Error ? err.message : 'Failed to complete registration');

@@ -1,5 +1,5 @@
 import React, { useState, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Heart, Activity, Users, Clock, ArrowRight, Calendar, MessageSquare, Video } from 'lucide-react';
 import { AuthProvider } from './contexts/AuthContext';
 import Navigation from './components/Navigation';
@@ -18,6 +18,12 @@ import Profile from './pages/Profile';
 const PatientHome = React.lazy(() => import('./pages/patient/Home.tsx'));
 const StaffDashboard = React.lazy(() => import('./pages/staff/Dashboard.tsx'));
 
+// Wrap signup component to provide navigation
+const SignupWithNavigation = () => {
+  const navigate = useNavigate();
+  return <Signup onSignupSuccess={() => navigate('/role-selection')} />;
+};
+
 function App() {
   return (
     <Router>
@@ -26,7 +32,7 @@ function App() {
           <Navigation />
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/signup" element={<SignupWithNavigation />} />
             <Route path="/role-selection" element={<RoleSelection />} />
             <Route path="/patient-data" element={<PatientDataForm />} />
             <Route path="/staff-data" element={<StaffDataForm />} />

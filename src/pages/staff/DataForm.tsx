@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-
-interface StaffDataFormProps {
-  onNavigate: (page: string) => void;
-}
+import { useNavigate } from 'react-router-dom';
 
 interface Department {
   department_id: number;
   name: string;
 }
 
-function StaffDataForm({ onNavigate }: StaffDataFormProps) {
+function StaffDataForm() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -85,7 +83,7 @@ function StaffDataForm({ onNavigate }: StaffDataFormProps) {
 
       if (staffError) throw staffError;
 
-      onNavigate('staff-dashboard');
+      navigate('/staff-dashboard');
     } catch (err) {
       console.error('Staff registration error:', err);
       setError(err instanceof Error ? err.message : 'Failed to complete registration');

@@ -2,16 +2,13 @@ import React, { useState } from 'react';
 import { UserCircle, Stethoscope } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
-interface RoleSelectionProps {
-  onNavigate: (page: string) => void;
-  onRoleSelect: (role: 'patient' | 'staff') => void;
-}
-
-function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
+function RoleSelection() {
   const { user, refreshUserRole } = useAuth();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleRoleSelect = async (roleType: 'patient' | 'staff') => {
     try {
@@ -24,43 +21,43 @@ function RoleSelection({ onNavigate, onRoleSelect }: RoleSelectionProps) {
 
       const roleId = roleType === 'patient' ? 1 : 2;
 
-    // Check if the role already exists for the user
-    const { data: existingRoles, error: fetchError } = await supabase
-      .from('user_role')
-      .select('role_id')
-      .eq('user_id', user.id);
-
-    if (fetchError) {
-      throw new Error('Failed to fetch existing roles');
-    }
-
-    // If the role doesn't exist, insert it
-    if (!existingRoles.some((role) => role.role_id === roleId)) {
-      const { error: roleError } = await supabase
+      // Check if the role already exists for the user
+      const { data: existingRoles, error: fetchError } = await supabase
         .from('user_role')
-        .insert({
-          role_id: roleId,
-          user_id: user.id,
-          created_at: new Date().toISOString(),
-        });
+        .select('role_id')
+        .eq('user_id', user.id);
 
-      if (roleError) {
-        throw new Error('Failed to update user role');
+      if (fetchError) {
+        throw new Error('Failed to fetch existing roles');
       }
+
+      // If the role doesn't exist, insert it
+      if (!existingRoles.some((role) => role.role_id === roleId)) {
+        const { error: roleError } = await supabase
+          .from('user_role')
+          .insert({
+            role_id: roleId,
+            user_id: user.id,
+            created_at: new Date().toISOString(),
+          });
+
+        if (roleError) {
+          throw new Error('Failed to update user role');
+        }
+      }
+
+      // Refresh the user's role in the AuthContext
+      await refreshUserRole();
+
+      // Navigate to the appropriate data collection form
+      navigate(roleType === 'patient' ? '/patient-data' : '/staff-data');
+    } catch (err) {
+      console.error('Role selection error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to set user role');
+    } finally {
+      setIsLoading(false);
     }
-
-    // Refresh the user's role in the AuthContext
-    await refreshUserRole();
-
-    // Navigate to the appropriate data collection form
-    onNavigate(roleType === 'patient' ? 'patient-data' : 'staff-data');
-  } catch (err) {
-    console.error('Role selection error:', err);
-    setError(err instanceof Error ? err.message : 'Failed to set user role');
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
