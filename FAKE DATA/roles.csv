@@ -1,0 +1,9 @@
+role_id,parent_role_id,role_name,description
+1,,Patient,Clinic patient with access to personal health records and appointments
+2,,Staff,General clinic staff member
+3,2,Manager,Clinic operations supervisor with reporting and schedule management privileges
+4,2,Doctor,Medical provider with access to patient records and appointment management
+5,2,Virtual Nurse,Remote nurse supporting patients and providers
+6,2,Local Nurse,On-site nurse assisting with patient care
+7,2,Receptionist,Front desk staff handling appointments and schedules
+8,2,IT Staff,Technical support and system administration

@@ -1,0 +1,10 @@
+permission_id,scope,action
+1,appointments,view
+2,appointments,create
+3,appointments,edit
+4,appointments,cancel
+5,appointments,cancel_others
+6,schedules,view
+7,schedules,edit
+8,schedules,cancel
+9,reports,generate
