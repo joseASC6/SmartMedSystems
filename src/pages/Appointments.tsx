@@ -8,9 +8,11 @@ import { supabase } from '../lib/supabase';
 interface Doctor {
   staff_id: string;
   user_id: string;
-  first_name: string;
-  last_name: string;
   specialization: string;
+  users: {
+    first_name: string;
+    last_name: string;
+  };
 }
 
 interface TimeSlot {
@@ -195,14 +197,7 @@ const Appointments = () => {
 
       if (error) throw error;
 
-      const formattedDoctors = data.map(doctor => ({
-        staff_id: doctor.staff_id,
-        user_id: doctor.user_id,
-        first_name: doctor.users.first_name,
-        last_name: doctor.users.last_name,
-        specialization: doctor.specialization
-      }));
-
+      const formattedDoctors = data as Doctor[];
       setDoctors(formattedDoctors);
     } catch (error) {
       console.error('Error fetching doctors:', error);
@@ -617,7 +612,7 @@ const Appointments = () => {
                   <option value="">Choose a doctor</option>
                   {doctors.map(doctor => (
                     <option key={doctor.staff_id} value={doctor.staff_id}>
-                      Dr. {doctor.first_name} {doctor.last_name} - {doctor.specialization}
+                      Dr. {doctor.users.first_name} {doctor.users.last_name} - {doctor.specialization}
                     </option>
                   ))}
                 </select>
