@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
-import { Calendar, Clock, User, X } from 'lucide-react';
+import { Calendar, Clock, User, X, ChevronDown, Info, ExternalLink } from 'lucide-react';
 import { Dialog } from '@headlessui/react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -55,6 +55,8 @@ const Appointments = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [patientId, setPatientId] = useState<string | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
     fetchAppointments();
@@ -136,7 +138,6 @@ const Appointments = () => {
         `);
 
       if (userRole === 'patient') {
-        // For patients, first get their patient_id
         const { data: patientData, error: patientError } = await supabase
           .from('patients')
           .select('patient_id')
@@ -169,7 +170,6 @@ const Appointments = () => {
 
   const fetchDoctors = async () => {
     try {
-      // First, get all user IDs that have the doctor role (role_id = 4)
       const { data: doctorUserIds, error: userRoleError } = await supabase
         .from('user_role')
         .select('user_id')
@@ -182,7 +182,6 @@ const Appointments = () => {
         return;
       }
 
-      // Then, get the staff details for these users
       const { data, error } = await supabase
         .from('staff')
         .select(`
@@ -210,7 +209,6 @@ const Appointments = () => {
     if (!selectedDoctor || !selectedDate) return;
 
     try {
-      // First, get the schedule for the selected date and doctor
       const { data: scheduleData, error: scheduleError } = await supabase
         .from('schedules')
         .select('*')
@@ -224,7 +222,6 @@ const Appointments = () => {
       if (scheduleData) {
         schedule = scheduleData;
       } else {
-        // Check weekly schedule if no date-specific schedule exists
         const dayOfWeek = format(parseISO(selectedDate), 'EEEE');
         const { data: weeklyData, error: weeklyError } = await supabase
           .from('schedules')
@@ -239,7 +236,6 @@ const Appointments = () => {
       }
 
       if (schedule) {
-        // Get existing time slots for this schedule
         const { data: timeSlots, error: timeSlotsError } = await supabase
           .from('time_slots')
           .select('*')
@@ -278,7 +274,6 @@ const Appointments = () => {
         appointmentPatientId = selectedPatient;
       }
 
-      // Update the selected time slot to 'booked'
       const { error: timeSlotError } = await supabase
         .from('time_slots')
         .update({ status: 'booked' })
@@ -286,7 +281,6 @@ const Appointments = () => {
 
       if (timeSlotError) throw timeSlotError;
 
-      // Create appointment
       const { error: appointmentError } = await supabase
         .from('appointments')
         .insert({
@@ -311,12 +305,30 @@ const Appointments = () => {
   const handleCancelAppointment = async (appointmentId: number) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase
+      
+      const { data: appointmentData } = await supabase
+        .from('appointments')
+        .select('time_slot_id')
+        .eq('appointment_id', appointmentId)
+        .single();
+
+      if (!appointmentData) {
+        throw new Error('Appointment not found');
+      }
+
+      const { error: appointmentError } = await supabase
         .from('appointments')
         .update({ status: 'cancelled' })
         .eq('appointment_id', appointmentId);
 
-      if (error) throw error;
+      if (appointmentError) throw appointmentError;
+
+      const { error: timeSlotError } = await supabase
+        .from('time_slots')
+        .update({ status: 'available' })
+        .eq('time_slot_id', appointmentData.time_slot_id);
+
+      if (timeSlotError) throw timeSlotError;
 
       fetchAppointments();
     } catch (error) {
@@ -325,6 +337,26 @@ const Appointments = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleShowDetails = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setShowDetailsModal(true);
+  };
+
+  const createGoogleCalendarEvent = (appointment: Appointment) => {
+    const startTime = new Date(appointment.start_time);
+    const endTime = new Date(appointment.end_time);
+    
+    const event = {
+      text: `Medical Appointment with ${appointment.doctor_name}`,
+      dates: `${startTime.toISOString()}/${endTime.toISOString()}`,
+      details: `Medical appointment at SmartMed Systems\nDoctor: ${appointment.doctor_name}\nStatus: ${appointment.status}`
+    };
+
+    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.text)}&dates=${encodeURIComponent(event.dates.replace(/[-:]/g, ''))}&details=${encodeURIComponent(event.details)}`;
+    
+    window.open(googleCalendarUrl, '_blank');
   };
 
   const filterAppointments = (status: 'upcoming' | 'pending' | 'past') => {
@@ -365,9 +397,7 @@ const Appointments = () => {
         </div>
       )}
 
-      {/* Appointments Lists */}
       <div className="space-y-8">
-        {/* Upcoming Appointments */}
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Appointments</h2>
           <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -384,6 +414,20 @@ const Appointments = () => {
                   </p>
                 </div>
                 <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleShowDetails(appointment)}
+                    className="px-3 py-1 text-gray-600 border border-gray-600 rounded hover:bg-gray-50 flex items-center"
+                  >
+                    <Info className="w-4 h-4 mr-1" />
+                    Details
+                  </button>
+                  <button
+                    onClick={() => createGoogleCalendarEvent(appointment)}
+                    className="px-3 py-1 text-green-600 border border-green-600 rounded hover:bg-green-50 flex items-center"
+                  >
+                    <Calendar className="w-4 h-4 mr-1" />
+                    Add to Calendar
+                  </button>
                   <button
                     onClick={() => {/* Handle reschedule */}}
                     className="px-3 py-1 text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
@@ -402,7 +446,6 @@ const Appointments = () => {
           </div>
         </section>
 
-        {/* Pending Appointments */}
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Pending Appointments</h2>
           <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -431,7 +474,6 @@ const Appointments = () => {
           </div>
         </section>
 
-        {/* Past Appointments */}
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Past Appointments</h2>
           <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -454,7 +496,67 @@ const Appointments = () => {
         </section>
       </div>
 
-      {/* Booking Modal */}
+      <Dialog
+        open={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        className="fixed inset-0 z-10 overflow-y-auto"
+      >
+        <div className="flex items-center justify-center min-h-screen">
+          <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
+
+          <div className="relative bg-white rounded-lg max-w-md w-full mx-4 p-6">
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {selectedAppointment && (
+              <div>
+                <Dialog.Title className="text-lg font-medium text-gray-900 mb-4">
+                  Appointment Details
+                </Dialog.Title>
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Doctor</h3>
+                    <p className="mt-1 text-sm text-gray-900">{selectedAppointment.doctor_name}</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Date & Time</h3>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {format(parseISO(selectedAppointment.start_time), 'PPP')}
+                    </p>
+                    <p className="text-sm text-gray-900">
+                      {format(parseISO(selectedAppointment.start_time), 'p')} - {format(parseISO(selectedAppointment.end_time), 'p')}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Status</h3>
+                    <p className="mt-1 text-sm text-gray-900 capitalize">{selectedAppointment.status}</p>
+                  </div>
+
+                  <div className="pt-4 flex justify-end space-x-3">
+                    <button
+                      onClick={() => createGoogleCalendarEvent(selectedAppointment)}
+                      className="flex items-center px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-md hover:bg-green-100"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Add to Google Calendar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </Dialog>
+
       <Dialog
         open={isBookingModalOpen}
         onClose={() => setIsBookingModalOpen(false)}
@@ -478,7 +580,6 @@ const Appointments = () => {
             </Dialog.Title>
 
             <div className="space-y-4">
-              {/* Patient Selection (Only for staff) */}
               {userRole === 'staff' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -499,7 +600,6 @@ const Appointments = () => {
                 </div>
               )}
 
-              {/* Doctor Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Select Doctor
@@ -518,7 +618,6 @@ const Appointments = () => {
                 </select>
               </div>
 
-              {/* Date Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Select Date
@@ -535,7 +634,6 @@ const Appointments = () => {
                 />
               </div>
 
-              {/* Time Slot Selection */}
               {availableTimeSlots.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
