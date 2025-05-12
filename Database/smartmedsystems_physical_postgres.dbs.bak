@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<project name="smarmedsystems_logcial_db" id="PostgreSQL-20fc" database="PostgreSQL" >
+<project name="smarmedsystems_logcial_db" database="PostgreSQL" id="PostgreSQL-20fc" >
 	<schema name="public" catalogname="smarmedsystems_logcial_db" >
 		<table name="appointments" prior="appointment" generator_rows="100" >
 			<column name="appointment_id" type="integer" jt="4" mandatory="y" />
@@ -48,13 +48,9 @@
 		<table name="departments" prior="department" generator_rows="100" >
 			<column name="department_id" type="integer" jt="4" mandatory="y" />
 			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
-			<column name="head_of_department" type="integer" jt="4" />
 			<index name="pk_department" unique="PRIMARY_KEY" >
 				<column name="department_id" />
 			</index>
-			<fk name="fk_departments_staff" to_schema="smarmedsystems_logcial_db.public" to_table="staff" delete_action="cascade" update_action="cascade" >
-				<fk_column name="head_of_department" pk="staff_id" />
-			</fk>
 		</table>
 		<table name="messages" generator_rows="150" >
 			<column name="message_id" type="integer" jt="4" mandatory="y" />
@@ -98,8 +94,8 @@
 		</table>
 		<table name="patients" prior="patient" generator_rows="150" >
 			<column name="patient_id" type="uuid" jt="102" mandatory="y" />
-			<column name="user_id" type="uuid" jt="102" />
-			<column name="primary_provider_id" type="integer" jt="4" />
+			<column name="user_id" type="uuid" jt="102" mandatory="y" />
+			<column name="primary_provider_id" type="uuid" jt="102" />
 			<column name="date_of_birth" type="date" jt="91" mandatory="y" />
 			<column name="gender" type="varchar" jt="12" mandatory="y" />
 			<column name="blood_type" type="varchar" jt="12" mandatory="y" />
@@ -256,24 +252,24 @@
 			</index>
 		</table>
 	</schema>
-	<layout name="Default Layout" id="Layout-1fc1" confirmed="y" show_relation="columns" >
-		<entity schema="smarmedsystems_logcial_db.public" name="appointments" color="C1D8EE" x="480" y="864" />
-		<entity schema="smarmedsystems_logcial_db.public" name="audit_logs" color="C1D8EE" x="736" y="288" />
-		<entity schema="smarmedsystems_logcial_db.public" name="departments" color="C1D8EE" x="960" y="624" />
-		<entity schema="smarmedsystems_logcial_db.public" name="messages" color="C1D8EE" x="304" y="288" />
-		<entity schema="smarmedsystems_logcial_db.public" name="participants" color="C1D8EE" x="304" y="592" />
-		<entity schema="smarmedsystems_logcial_db.public" name="patients" color="C1D8EE" x="496" y="624" />
-		<entity schema="smarmedsystems_logcial_db.public" name="permissions" color="C1D8EE" x="752" y="176" />
-		<entity schema="smarmedsystems_logcial_db.public" name="role_permissions" color="C1D8EE" x="976" y="272" />
-		<entity schema="smarmedsystems_logcial_db.public" name="roles" color="C1D8EE" x="960" y="464" />
-		<entity schema="smarmedsystems_logcial_db.public" name="schedules" color="C1D8EE" x="1024" y="848" />
-		<entity schema="smarmedsystems_logcial_db.public" name="staff" color="C1D8EE" x="736" y="640" />
-		<entity schema="smarmedsystems_logcial_db.public" name="threads" color="C1D8EE" x="160" y="448" />
-		<entity schema="smarmedsystems_logcial_db.public" name="time_slots" color="C1D8EE" x="736" y="864" />
-		<entity schema="smarmedsystems_logcial_db.public" name="user_permissions" color="C1D8EE" x="512" y="224" />
-		<entity schema="smarmedsystems_logcial_db.public" name="user_role" color="C1D8EE" x="736" y="448" />
-		<entity schema="smarmedsystems_logcial_db.public" name="users" color="C1D8EE" x="512" y="416" />
-		<callout x="48" y="48" pointer="Round" >
+	<layout name="Default Layout" id="Layout-1fc1" confirmed="y" show_column_type="y" show_relation="columns" >
+		<entity schema="smarmedsystems_logcial_db.public" name="appointments" color="C1D8EE" x="425" y="969" />
+		<entity schema="smarmedsystems_logcial_db.public" name="audit_logs" color="C1D8EE" x="697" y="51" />
+		<entity schema="smarmedsystems_logcial_db.public" name="departments" color="C1D8EE" x="1037" y="663" />
+		<entity schema="smarmedsystems_logcial_db.public" name="messages" color="C1D8EE" x="187" y="323" />
+		<entity schema="smarmedsystems_logcial_db.public" name="participants" color="C1D8EE" x="187" y="697" />
+		<entity schema="smarmedsystems_logcial_db.public" name="patients" color="C1D8EE" x="442" y="714" />
+		<entity schema="smarmedsystems_logcial_db.public" name="permissions" color="C1D8EE" x="731" y="272" />
+		<entity schema="smarmedsystems_logcial_db.public" name="role_permissions" color="C1D8EE" x="1020" y="289" />
+		<entity schema="smarmedsystems_logcial_db.public" name="roles" color="C1D8EE" x="1020" y="476" />
+		<entity schema="smarmedsystems_logcial_db.public" name="schedules" color="C1D8EE" x="1020" y="918" />
+		<entity schema="smarmedsystems_logcial_db.public" name="staff" color="C1D8EE" x="765" y="646" />
+		<entity schema="smarmedsystems_logcial_db.public" name="threads" color="C1D8EE" x="187" y="510" />
+		<entity schema="smarmedsystems_logcial_db.public" name="time_slots" color="C1D8EE" x="748" y="969" />
+		<entity schema="smarmedsystems_logcial_db.public" name="user_permissions" color="C1D8EE" x="425" y="272" />
+		<entity schema="smarmedsystems_logcial_db.public" name="user_role" color="C1D8EE" x="731" y="476" />
+		<entity schema="smarmedsystems_logcial_db.public" name="users" color="C1D8EE" x="476" y="476" />
+		<callout x="51" y="119" pointer="Round" >
 			<comment><![CDATA[This is a layout - a diagram with tools.
 - Create new entities by right-clicking the layout. 
 - Double-click entity headers to edit.
